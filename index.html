@@ -356,10 +356,11 @@
 
                     const rangeResult = response.result;
 
+                    const sheetName = range.split('!')[0]; // Tách tên sheet từ phạm vi
                     if (rangeResult && rangeResult.values && rangeResult.values.length > 0) {
-                        sheetData.push(rangeResult.values); // Lưu dữ liệu
+                        sheetData[sheetName] = rangeResult.values; // Lưu dữ liệu theo tên sheet
                     } else {
-                        sheetData.push([]); // Nếu không có dữ liệu, thêm mảng rỗng
+                        sheetData[sheetName] = []; // Nếu không có dữ liệu, thêm mảng rỗng
                     }
                 }
 
@@ -375,14 +376,19 @@
         function processSheetData(sheetData) {
             console.log(sheetData.sheet1); 
 
-            const sheet1Data = sheetData.sheet1; // Dữ liệu từ sheet 1
-            const sheet3Data = sheetData.sheet3; // Dữ liệu từ sheet 3
-            const sheet9Data = sheetData.sheet9; // Dữ liệu từ sheet 9
+            const sheet1RawData = sheetData['Sheet1']
+            // Chuyển đổi sheet1Data thành mảng đối tượng
+            const headers = sheet1RawData[0]; // Lấy hàng đầu tiên làm tiêu đề
+            const sheet1Data = sheet1RawData.slice(1).map(row => {
+                return headers.reduce((obj, header, index) => {
+                    obj[header] = row[index]; // Gán giá trị cho key tương ứng
+                    return obj;
+                }, {});
+            });
+            
+            console.log(sheet1Data); // Kiểm tra dữ liệu đã chuyển đổi
+            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data)); 
 
-            // Thêm các hàm tạo biểu đồ vào mảng chartFunctions
-            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data)); // Chart cho sheet1
-            chartFunctions.push(() => create_Sheet3_Chart(sheet3Data)); // Chart cho sheet3
-            chartFunctions.push(() => create_Sheet9_Chart(sheet9Data)); // Chart cho sheet9
 
 
             hideLoading(); // Ẩn biểu tượng loading sau khi dữ liệu đã được tải xong
