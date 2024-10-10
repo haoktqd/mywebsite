@@ -377,23 +377,15 @@
             console.log(sheetData.sheet1); 
 
             const sheet1RawData = sheetData['Sheet1']
-            
             // Chuyển đổi sheet1Data thành mảng đối tượng
             const headers = sheet1RawData[0]; // Lấy hàng đầu tiên làm tiêu đề
             const sheet1Data = sheet1RawData.slice(1).map(row => {
                 return headers.reduce((obj, header, index) => {
-                  let value = row[index];
-
-                  if (header === "HTKH" || header === "KH" || header === "M-1" || 
-                      header === "MoM" || header === "Ref" || header === "TH" || 
-                      header === "Y-1" || header === "YoY") {
-                      value = parseFloat(value); // Chuyển đổi thành số
-                  }
-                  obj[header] = value; // Gán giá trị cho key tương ứng
-                  return obj;
+                    obj[header] = row[index]; // Gán giá trị cho key tương ứng
+                    return obj;
                 }, {});
             });
-
+            
             console.log(sheet1Data); // Kiểm tra dữ liệu đã chuyển đổi
             chartFunctions.push(() => create_HTKH_DTDV(sheet1Data)); 
 
