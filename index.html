@@ -185,7 +185,6 @@
     <!-- Add buttons to initiate auth sequence and sign out -->
     <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    <pre id="content" style="white-space: pre-wrap;"></pre>
 
     <div class="header">
         <div class="menu"></div>
@@ -376,12 +375,8 @@
 
         function processSheetData(sheetData) {
             console.log(sheetData); // Kiểm tra dữ liệu trả về từ Google Sheets
-            const [sheet1Data, sheet3Data, sheet9Data] = sheetData;
-            // Thêm mã kiểm tra
+            const {sheet1Data, sheet3Data, sheet9Data} = sheetData;
 
-
-            // Xử lý dữ liệu từ từng sheet và hiển thị ra
-            let output = 'Sheet1 Data:\n';
 
             document.getElementById('content').innerText = output;
 
