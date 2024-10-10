@@ -359,16 +359,24 @@
             }
 
             // Get headers from the first row
-            let sheetData = 'Date, HTKH, ID, KH, M-1, MoM, Ref, TH, Thị Trường, Y-1\n';
-            
+            let sheetData = 'Date, HTKH, ID, KH, M-1, MoM, Ref, TH, Thị Trường, Y-1,M-1,	YoY,	MoM\n';
+            const headers = ['Date', 'HTKH', 'ID', 'KH', 'M-1', 'MoM', 'Ref', 'TH', 'Thị Trường', 'Y-1', 'YoY', 'MoM'];
+            const jsonData = [];
+
+            // Process each row and convert to JSON
             range.values.forEach(row => {
-              sheetData += `${row[0]}, ${row[1]}, ${row[2]}, ${row[3]}, ${row[4]},${row[5]},${row[6]},${row[7]},${row[8]},${row[9]},${row[10]}\n`;
+                const rowData = {};
+                headers.forEach((header, index) => {
+                    rowData[header] = row[index] || null; // Handle missing values
+                });
+                jsonData.push(rowData);
             });
+
             console.log(sheetData);
 
             // Display results
-            document.getElementById('content').innerText = sheetData;
-            processSheetData(sheetData)
+            document.getElementById('content').innerText = JSON.stringify(jsonData, null, 2);
+            processSheetData(jsonData)
         }
 
            
