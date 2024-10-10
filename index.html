@@ -382,14 +382,6 @@
 
             // Xử lý dữ liệu từ từng sheet và hiển thị ra
             let output = 'Sheet1 Data:\n';
-            output += sheet1Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
-
-            output += 'Sheet3 Data:\n';
-            output += sheet3Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
-
-            output += 'Sheet9 Data:\n';
-            output += sheet9Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
-
 
             document.getElementById('content').innerText = output;
 
