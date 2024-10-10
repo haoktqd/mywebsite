@@ -371,18 +371,18 @@
                 });
                 jsonData.push(rowData);
             });
-
-            console.log(sheetData);
+            
+            const jsondata1 = JSON.stringify(jsonData, null, 2);
+            console.log(jsondata1);
 
             // Display results
-            document.getElementById('content').innerText = JSON.stringify(jsonData, null, 2);
-            processSheetData(jsonData)
+            document.getElementById('content').innerText = jsondata1;
+            processSheetData(jsondata1);
         }
 
            
 
         function processSheetData(sheetData) {
-            console.log(sheetData.sheet1); 
 
             const sheet1RawData = sheetData['Sheet1']
             // Chuyển đổi sheet1Data thành mảng đối tượng
