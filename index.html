@@ -358,19 +358,11 @@
             }
 
             // Get headers from the first row
-            const headers = range.values[0];
+            let sheetData = 'Date, HTKH, ID, KH, M-1, MoM, Ref, TH, Thị Trường, Y-1\n';
             
-            // Build output string starting with headers
-            const sheetData = range.values.reduce((str, row, index) => {
-                if (index === 0) {
-                  const headerString = headers.join(', '); // Create header string
-                  return `${headerString}\n`; // Start with headers
-                }
-
-                // Combine header names with their corresponding values
-                const rowString = headers.map((header, i) => `${header}: ${row[i] || 0}`).join(', '); // Use 'N/A' if the value is missing
-                return `${str}${rowString}\n`; // Append to the result string
-            }, ''); // Start with an empty string
+            range.values.forEach(row => {
+              sheetData += `${row[0]}, ${row[1]}, ${row[2]}, ${row[3]}, ${row[4]},${row[5]},${row[6]},${row[7]},${row[8]},${row[9]}\n`;
+            });
 
             // Display results
             processSheetData(sheetData)
