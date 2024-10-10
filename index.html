@@ -366,20 +366,38 @@
                 document.getElementById('content').innerText = 'Error fetching data.';
             }
         }
+        
+        function convertToJSON(sheetData) {
+            const headers = sheetData[0]; // Hàng đầu tiên làm header
+            const rows = sheetData.slice(1); // Các hàng còn lại là dữ liệu
+
+            return rows.map(row => {
+                let jsonRow = {};
+                headers.forEach((header, index) => {
+                    jsonRow[header] = row[index] || ''; // Sử dụng tên cột làm khóa và dữ liệu tương ứng làm giá trị
+                });
+                return jsonRow;
+            });
+        }
+
 
         function processSheetData(sheetData) {
             const [sheet1Data, sheet3Data, sheet9Data] = sheetData;
 
-            // Xử lý dữ liệu từ từng sheet và hiển thị ra
-            let output = 'Sheet1 Data:\n';
-            output += sheet1Data.map(row => row.slice(0, 10).join(', ')).join('\n') + '\n\n';
+            // Chuyển dữ liệu của mỗi sheet sang JSON
+            const sheet1JSON = convertToJSON(sheet1Data);
+            const sheet3JSON = convertToJSON(sheet3Data);
+            const sheet9JSON = convertToJSON(sheet9Data);
 
-            output += 'Sheet3 Data:\n';
-            output += sheet3Data.map(row => row.slice(0, 10).join(', ')).join('\n') + '\n\n';
+            // Hiển thị dữ liệu JSON đã chuyển đổi
+            let output = 'Sheet1 Data (JSON):\n';
+            output += JSON.stringify(sheet1JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet1 dưới dạng JSON
 
-            output += 'Sheet9 Data:\n';
-            output += sheet9Data.map(row => row.slice(0, 10).join(', ')).join('\n') + '\n\n';
+            output += 'Sheet3 Data (JSON):\n';
+            output += JSON.stringify(sheet3JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet3 dưới dạng JSON
 
+            output += 'Sheet9 Data (JSON):\n';
+            output += JSON.stringify(sheet9JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet9 dưới dạng JSON
 
             document.getElementById('content').innerText = output;
 
