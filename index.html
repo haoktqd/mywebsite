@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Charts</title>
-    <script src="js\xlsx.full.min.js"></script>
-    <script src="js\chart.js"></script>
-    <script src="js\chartjs-plugin-datalabels@2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
     <style>
@@ -392,7 +392,22 @@
 
             chartFunctions.push(() => create_DTDV_daily_trend(sheet3Data));
             chartFunctions.push(() => create_TBPSGDLK_daily_trend(sheet3Data));
-            // Thêm các hàm tạo biểu đồ khác từ sheet3Data...
+            chartFunctions.push(() => create_DTDV_daily_trend_VTC(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTC(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_STL(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_STL(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTL(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTL(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_MYN(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MYN(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VBD(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VBD(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_MOV(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MOV(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTZ(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTZ(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_NCM(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_NCM(sheet3Data));
 
             hideLoading(); // Ẩn biểu tượng loading sau khi dữ liệu đã được tải xong
             startLoop(); // Hiển thị biểu đồ đầu tiên và bắt đầu quá trình lặp
