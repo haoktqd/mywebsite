@@ -9,7 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
     <style>
+
         #loadingSpinner {
             position: fixed;
             top: 50%;
@@ -19,6 +21,7 @@
             font-weight: bold;
             color: #ae1e6a;
         }
+
          /* Spinner styling */
         .spinner {
             border: 8px solid rgba(0, 0, 0, 0.1); /* Màu viền mờ */
@@ -176,6 +179,7 @@
         }
 
     </style>
+    
 </head>
 <body>
     <!-- Add buttons to initiate auth sequence and sign out -->
@@ -366,7 +370,6 @@
                 document.getElementById('content').innerText = 'Error fetching data.';
             }
         }
-        
         function convertToJSON(sheetData) {
             const headers = sheetData[0]; // Hàng đầu tiên làm header
             const rows = sheetData.slice(1); // Các hàng còn lại là dữ liệu
@@ -379,25 +382,26 @@
                 return jsonRow;
             });
         }
-
+        
 
         function processSheetData(sheetData) {
+            console.log(sheetData); // Kiểm tra dữ liệu trả về từ Google Sheets
             const [sheet1Data, sheet3Data, sheet9Data] = sheetData;
+            // Thêm mã kiểm tra
+            console.log(sheet1Data);
+            console.log(sheet3Data);
+            console.log(sheet9Data);
 
-            // Chuyển dữ liệu của mỗi sheet sang JSON
-            const sheet1JSON = convertToJSON(sheet1Data);
-            const sheet3JSON = convertToJSON(sheet3Data);
-            const sheet9JSON = convertToJSON(sheet9Data);
+            // Xử lý dữ liệu từ từng sheet và hiển thị ra
+            let output = 'Sheet1 Data:\n';
+            output += sheet1Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
 
-            // Hiển thị dữ liệu JSON đã chuyển đổi
-            let output = 'Sheet1 Data (JSON):\n';
-            output += JSON.stringify(sheet1JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet1 dưới dạng JSON
+            output += 'Sheet3 Data:\n';
+            output += sheet3Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
 
-            output += 'Sheet3 Data (JSON):\n';
-            output += JSON.stringify(sheet3JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet3 dưới dạng JSON
+            output += 'Sheet9 Data:\n';
+            output += sheet9Data.map(row => row.slice(0, 20).join(', ')).join('\n') + '\n\n';
 
-            output += 'Sheet9 Data (JSON):\n';
-            output += JSON.stringify(sheet9JSON, null, 2) + '\n\n'; // Hiển thị dữ liệu Sheet9 dưới dạng JSON
 
             document.getElementById('content').innerText = output;
 
