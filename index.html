@@ -356,6 +356,8 @@
                     });
 
                     const rangeResult = response.result;
+                    console.log(`Data for ${range}:`, rangeResult); 
+
                     if (rangeResult && rangeResult.values && rangeResult.values.length > 0) {
                         sheetData.push(rangeResult.values); // Lưu dữ liệu
                     } else {
@@ -370,27 +372,13 @@
                 document.getElementById('content').innerText = 'Error fetching data.';
             }
         }
-        function convertToJSON(sheetData) {
-            const headers = sheetData[0]; // Hàng đầu tiên làm header
-            const rows = sheetData.slice(1); // Các hàng còn lại là dữ liệu
 
-            return rows.map(row => {
-                let jsonRow = {};
-                headers.forEach((header, index) => {
-                    jsonRow[header] = row[index] || ''; // Sử dụng tên cột làm khóa và dữ liệu tương ứng làm giá trị
-                });
-                return jsonRow;
-            });
-        }
-        
 
         function processSheetData(sheetData) {
             console.log(sheetData); // Kiểm tra dữ liệu trả về từ Google Sheets
             const [sheet1Data, sheet3Data, sheet9Data] = sheetData;
             // Thêm mã kiểm tra
-            console.log(sheet1Data);
-            console.log(sheet3Data);
-            console.log(sheet9Data);
+
 
             // Xử lý dữ liệu từ từng sheet và hiển thị ra
             let output = 'Sheet1 Data:\n';
