@@ -362,8 +362,10 @@
             
             // Build output string starting with headers
             const sheetData = range.values.reduce((str, row, index) => {
-                // Skip the header row (index 0)
-                if (index === 0) return str;
+                if (index === 0) {
+                  const headerString = headers.join(', '); // Create header string
+                  return `${headerString}\n`; // Start with headers
+                }
 
                 // Combine header names with their corresponding values
                 const rowString = headers.map((header, i) => `${header}: ${row[i] || 0}`).join(', '); // Use 'N/A' if the value is missing
