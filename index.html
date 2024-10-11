@@ -379,17 +379,17 @@
             // Just map the data directly
             const sheet1Data = sheetData.map(row => {
                 return {
-                    Date: row['Date'],
-                    ID: row['ID'],
-                    Ref: row['Ref'],
-                    'Thị Trường': row['Thị Trường'],
-                    KH: row['KH'],
-                    TH: row['TH'],
-                    HTKH: row['HTKH'],
-                    'Y-1': row['Y-1'],
-                    'M-1': row['M-1'],
-                    YoY: row['YoY'],
-                    MoM: row['MoM']
+                    Date: row['Date'], // Giữ nguyên nếu là chuỗi ngày tháng
+                    ID: parseFloat(row['ID']) || row['ID'], // Chuyển thành số nếu có thể
+                    Ref: parseFloat(row['Ref']) || row['Ref'],
+                    'Thị Trường': row['Thị Trường'], // Chuỗi không chuyển
+                    KH: parseFloat(row['KH']) || row['KH'],
+                    TH: parseFloat(row['TH']) || row['TH'],
+                    HTKH: parseFloat(row['HTKH']) || row['HTKH'],
+                    'Y-1': parseFloat(row['Y-1']) || row['Y-1'],
+                    'M-1': parseFloat(row['M-1']) || row['M-1'],
+                    YoY: parseFloat(row['YoY']) || row['YoY'],
+                    MoM: parseFloat(row['MoM']) || row['MoM']
                 };
             });
             // Display results
