@@ -374,9 +374,6 @@
             const jsondata1 = JSON.stringify(jsonData, null, 2);
             console.log(jsondata1);
 
-            // Display results
-            document.getElementById('content').innerText = jsondata1;
-
             // Parse JSON string into actual JavaScript objects
             processSheetData(JSON.parse(jsondata1)); // <== Parsing back to object
         }
@@ -400,7 +397,9 @@
                     MoM2: row['MoM'] // Assuming a second MoM column exists, adjust if needed
                 };
             });
-
+            // Display results
+            document.getElementById('content').innerText = jsondata1;
+            
             console.log(sheet1Data); // Check the processed data
             chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
 
