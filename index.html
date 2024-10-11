@@ -359,23 +359,19 @@
             }
 
             // Get headers from the first row
-            const headers = ['Date', 'HTKH', 'ID', 'KH', 'M-1', 'MoM', 'Ref', 'TH', 'Thị Trường', 'Y-1', 'YoY', 'MoM'];
-            const jsonData = [];
-
-            // Process each row and convert to JSON
-            range.values.forEach(row => {
-                const rowData = {};
-                headers.forEach((header, index) => {
-                    rowData[header] = row[index] || null; // Handle missing values
+                const headers = ['Date', 'HTKH', 'ID', 'KH', 'M-1', 'MoM', 'Ref', 'TH', 'Thị Trường', 'Y-1', 'YoY', 'MoM'];
+                const jsonData = [];
+            
+                // Process each row and convert to JSON
+                range.values.forEach(row => {
+                    const rowData = {};
+                    headers.forEach((header, index) => {
+                        rowData[header] = row[index] || null; // Handle missing values
+                    });
+                    jsonData.push(rowData);
                 });
-                jsonData.push(rowData);
-            });
-
-            const jsondata1 = JSON.stringify(jsonData, null, 2);
-            console.log(jsondata1);
-
             // Parse JSON string into actual JavaScript objects
-            processSheetData(JSON.parse(jsondata1)); // <== Parsing back to object
+            processSheetData(jsonData); // <== Parsing back to object
         }
 
         function processSheetData(sheetData) {
@@ -397,7 +393,7 @@
                 };
             });
             // Display results
-            document.getElementById('content').innerText = jsondata1;
+            document.getElementById('content').innerText = sheet1Data;
             
             console.log(sheet1Data); // Check the processed data
             chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
