@@ -359,7 +359,6 @@
             }
 
             // Get headers from the first row
-            let sheetData = 'Date, HTKH, ID, KH, M-1, MoM, Ref, TH, Thị Trường, Y-1,M-1,	YoY,	MoM\n';
             const headers = ['Date', 'HTKH', 'ID', 'KH', 'M-1', 'MoM', 'Ref', 'TH', 'Thị Trường', 'Y-1', 'YoY', 'MoM'];
             const jsonData = [];
 
@@ -371,37 +370,44 @@
                 });
                 jsonData.push(rowData);
             });
-            
+
             const jsondata1 = JSON.stringify(jsonData, null, 2);
             console.log(jsondata1);
 
             // Display results
             document.getElementById('content').innerText = jsondata1;
-            processSheetData(jsondata1);
-        }
 
-           
+            // Parse JSON string into actual JavaScript objects
+            processSheetData(JSON.parse(jsondata1)); // <== Parsing back to object
+        }
 
         function processSheetData(sheetData) {
-
-            const sheet1RawData = sheetData['Sheet1']
-            // Chuyển đổi sheet1Data thành mảng đối tượng
-            const headers = sheet1RawData[0]; // Lấy hàng đầu tiên làm tiêu đề
-            const sheet1Data = sheet1RawData.slice(1).map(row => {
-                return headers.reduce((obj, header, index) => {
-                    obj[header] = row[index]; // Gán giá trị cho key tương ứng
-                    return obj;
-                }, {});
+            // sheetData is already an array of objects, no need to use sheetData['Sheet1']
+            // Just map the data directly
+            const sheet1Data = sheetData.map(row => {
+                return {
+                    Date: row['Date'],
+                    HTKH: row['HTKH'],
+                    ID: row['ID'],
+                    KH: row['KH'],
+                    'M-1': row['M-1'],
+                    MoM: row['MoM'],
+                    Ref: row['Ref'],
+                    TH: row['TH'],
+                    'Thị Trường': row['Thị Trường'],
+                    'Y-1': row['Y-1'],
+                    YoY: row['YoY'],
+                    MoM2: row['MoM'] // Assuming a second MoM column exists, adjust if needed
+                };
             });
-            
-            console.log(sheet1Data); // Kiểm tra dữ liệu đã chuyển đổi
-            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data)); 
 
+            console.log(sheet1Data); // Check the processed data
+            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
 
-
-            hideLoading(); // Ẩn biểu tượng loading sau khi dữ liệu đã được tải xong
-            startLoop(); // Hiển thị biểu đồ đầu tiên và bắt đầu quá trình lặp
+            hideLoading(); // Hide the loading icon after data is loaded
+            startLoop();   // Show the first chart and start looping through
         }
+
 
 
         function startLoop() {
