@@ -367,7 +367,7 @@
                 // Fetch data from the specified spreadsheet and range
                 response = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet1!A2:K', // Adjust range as needed
+                    range: 'Sheet1!A:K', // Adjust range as needed
                 });
             } catch (err) {
                 document.getElementById('content').innerText = err.message;
@@ -381,7 +381,7 @@
             }
 
             // Get headers from the first row
-            const headers = ['Date', 'ID','Ref', 'Thị trường','KH','TH','HTKH','Y-1','M-1','YoY','MoM'];
+            const headers = range.values[0];//['Date', 'ID','Ref', 'Thị trường','KH','TH','HTKH','Y-1','M-1','YoY','MoM'];
             const jsonData = [];
             
             // Process each row and convert to JSON
