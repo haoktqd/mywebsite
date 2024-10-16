@@ -379,20 +379,13 @@
                 return;
             }
 
-            const range = response.result;
-            if (!range || !range.values || range.values.length == 0) {
-                document.getElementById('content').innerText = 'No values found.';
-                return;
-            }
-
             // Process Sheet1 Data
             const rangeSheet1 = responseSheet1.result;
-            const sheet1Data = processSheetData1(rangeSheet1, 'Sheet1');
+            const sheet1Data = processSheetData(rangeSheet1, 'Sheet1');
 
             // Process Sheet3 Data
             const rangeSheet3 = responseSheet3.result;
-            const sheet3Data = processSheetData3(rangeSheet3, 'Sheet3');
-
+            const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
 
             console.log(sheet1Data, sheet3Data);
 
@@ -426,43 +419,29 @@
             startLoop();   // Show the first chart and start looping through
         }
 
-        function processSheetData1(sheetData) {
-            const sheet1Data = sheetData.map(row => {
-                return {
-                    Date: row['Date'], // Giữ nguyên nếu là chuỗi ngày tháng
-                    ID: parseFloat(row['ID']) || row['ID'], // Chuyển thành số nếu có thể
-                    Ref: parseFloat(row['Ref']) || row['Ref'],
-                    'Thị trường': row['Thị trường'], // Chuỗi không chuyển
-                    KH: parseFloat(row['KH']) || row['KH'],
-                    TH: parseFloat(row['TH']) || row['TH'],
-                    HTKH: parseFloat(row['HTKH']) || row['HTKH'],
-                    'Y-1': parseFloat(row['Y-1']) || row['Y-1'],
-                    'M-1': parseFloat(row['M-1']) || row['M-1'],
-                    YoY: parseFloat(row['YoY']) || row['YoY'],
-                    MoM: parseFloat(row['MoM']) || row['MoM']
-                };
-            });
-            // Display results
-            document.getElementById('content').innerText = JSON.stringify(sheet1Data, null, 2);
-        }
+        function processSheetData(range, sheetName) {
+            if (!range || !range.values || range.values.length == 0) {
+                document.getElementById('content').innerText = `No values found in ${sheetName}.`;
+                return [];
+            }
 
-        function processSheetData3(sheetData) {
-            const sheet1Data = sheetData.map(row => {
-                return {
-                    Month: row['Month'], 
-                    Date: row['Date'],
-
-                    ID: parseFloat(row['ID']) || row['ID'], // Chuyển thành số nếu có thể
-                    Ref: parseFloat(row['Ref']) || row['Ref'],
-                    'Thị trường': row['Thị trường'], // Chuỗi không chuyển
-                    KH: parseFloat(row['KH']) || row['KH'],
-                    TH: parseFloat(row['TH']) || row['TH'],
-                    'TH m-1': parseFloat(row['TH m-1']) || row['TH m-1'],
-                    'TH y-1': parseFloat(row['TH y-1']) || row['TH y-1'],
-                };
+            // Get headers from the first row
+            const headers = range.values[0];
+            const jsonData = [];
+            
+            // Process each row and convert to JSON
+            range.values.slice(1).forEach(row => {  // Use slice(1) to skip the header row
+                const rowData = {};
+                headers.forEach((header, index) => {
+                    // Check if the row has enough columns, if not fill with null
+                    rowData[header] = row[index] !== undefined ? row[index] : null;
+                });
+                jsonData.push(rowData);
             });
-            // Display results
-            document.getElementById('content').innerText = JSON.stringify(sheet1Data, null, 2);
+
+            console.log(`Processed data from ${sheetName}:`, jsonData);
+            
+            return jsonData;
         }
 
 
@@ -1125,7 +1104,7 @@ function create_MoM_DTDV(data) {
             const ctx = document.getElementById('Chartvtc1').getContext('2d');
             const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date);
         }
-
+     
 
     </script>
 </body>
