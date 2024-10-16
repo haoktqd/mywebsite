@@ -420,12 +420,14 @@
             console.log(sheet1Data); // Check the processed data
             chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
             chartFunctions.push(() => create_HTKH_TBPSGDTT(sheet1Data));
+            chartFunctions.push(() => create_YoY_DTDV(sheet1Data));
+            chartFunctions.push(() => create_YoY_TBPSGDLK(sheet1Data));
+            chartFunctions.push(() => create_MoM_DTDV(sheet1Data));
+            chartFunctions.push(() => create_MoM_TBPSGDLK(sheet1Data));
             
             hideLoading(); // Hide the loading icon after data is loaded
             startLoop();   // Show the first chart and start looping through
         }
-
-
 
 
         function startLoop() {
