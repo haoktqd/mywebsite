@@ -239,7 +239,9 @@
         
         window.onload = function() {
             showLoading();
-            fetchExcelData(); // Tự động gọi API khi tải trang
+            if (gapiInited && gisInited) {
+                fetchExcelData();
+    }
             
         };
 
@@ -289,6 +291,11 @@
 
             gapiInited = true;
             maybeEnableButtons();
+
+            // Only call fetchExcelData() after initialization is completed.
+            if (gapiInited && gisInited) {
+                fetchExcelData();  // Ensure that gapi is initialized before fetching data.
+            }
         }
 
 
@@ -381,6 +388,7 @@
                 });
             } catch (err) {
                 document.getElementById('content').innerText = err.message;
+                hideLoading(); 
                 return;
             }
 
