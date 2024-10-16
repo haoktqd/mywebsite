@@ -336,7 +336,7 @@
 
                 document.getElementById('signout_button').style.visibility = 'visible';
                 document.getElementById('authorize_button').innerText = 'Refresh';
-                await fetchExcelData(); // Thay thế listMajors bằng fetchExcelData
+                await fetchExcelData(); 
             };
 
             if (gapi.client.getToken() === null) {
@@ -362,12 +362,17 @@
         }
 
         async function fetchExcelData() {
-            let response;
+            let responseSheet1, responseSheet3;
             try {
-                // Fetch data from the specified spreadsheet and range
-                response = await gapi.client.sheets.spreadsheets.values.get({
+                // Fetch data from Sheet1 and Sheet3
+                responseSheet1 = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet1!A:K', // Adjust range as needed
+                    range: 'Sheet1!A2:K', // Adjust range as needed
+                });
+                
+                responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
+                    range: 'Sheet3!A2:I', // Adjust range as needed
                 });
             } catch (err) {
                 document.getElementById('content').innerText = err.message;
@@ -380,25 +385,48 @@
                 return;
             }
 
-            // Get headers from the first row
-            const headers = range.values[0];//['Date', 'ID','Ref', 'Thị trường','KH','TH','HTKH','Y-1','M-1','YoY','MoM'];
-            const jsonData = [];
-            
-            // Process each row and convert to JSON
-            range.values.forEach(row => {
-                const rowData = {};
-                headers.forEach((header, index) => {
-                    // Check if the row has enough columns, if not fill with null
-                    rowData[header] = row[index] !== undefined ? row[index] : null;
-                });
-                jsonData.push(rowData);
-            });
+            // Process Sheet1 Data
+            const rangeSheet1 = responseSheet1.result;
+            const sheet1Data = processSheetData1(rangeSheet1, 'Sheet1');
 
-            console.log(jsonData);
-            processSheetData(jsonData); // <== Parsing back to object
+            // Process Sheet3 Data
+            const rangeSheet3 = responseSheet3.result;
+            const sheet3Data = processSheetData3(rangeSheet3, 'Sheet3');
+
+
+            console.log(sheet1Data, sheet3Data);
+
+            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
+            chartFunctions.push(() => create_HTKH_TBPSGDTT(sheet1Data));
+            chartFunctions.push(() => create_YoY_DTDV(sheet1Data));
+            chartFunctions.push(() => create_YoY_TBPSGDLK(sheet1Data));
+            chartFunctions.push(() => create_MoM_DTDV(sheet1Data));
+            chartFunctions.push(() => create_MoM_TBPSGDLK(sheet1Data));
+
+            chartFunctions.push(() => create_DTDV_daily_trend(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTC(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTC(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_STL(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_STL(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTL(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTL(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_MYN(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MYN(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VBD(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VBD(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_MOV(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MOV(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTZ(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTZ(sheet3Data));
+            chartFunctions.push(() => create_DTDV_daily_trend_NCM(sheet3Data));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_NCM(sheet3Data));
+
+            hideLoading(); // Hide the loading icon after data is loaded
+            startLoop();   // Show the first chart and start looping through
         }
 
-        function processSheetData(sheetData) {
+        function processSheetData1(sheetData) {
             const sheet1Data = sheetData.map(row => {
                 return {
                     Date: row['Date'], // Giữ nguyên nếu là chuỗi ngày tháng
@@ -416,17 +444,25 @@
             });
             // Display results
             document.getElementById('content').innerText = JSON.stringify(sheet1Data, null, 2);
-            
-            console.log(sheet1Data); // Check the processed data
-            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
-            chartFunctions.push(() => create_HTKH_TBPSGDTT(sheet1Data));
-            chartFunctions.push(() => create_YoY_DTDV(sheet1Data));
-            chartFunctions.push(() => create_YoY_TBPSGDLK(sheet1Data));
-            chartFunctions.push(() => create_MoM_DTDV(sheet1Data));
-            chartFunctions.push(() => create_MoM_TBPSGDLK(sheet1Data));
-            
-            hideLoading(); // Hide the loading icon after data is loaded
-            startLoop();   // Show the first chart and start looping through
+        }
+
+        function processSheetData3(sheetData) {
+            const sheet1Data = sheetData.map(row => {
+                return {
+                    Month: row['Month'], 
+                    Date: row['Date'],
+
+                    ID: parseFloat(row['ID']) || row['ID'], // Chuyển thành số nếu có thể
+                    Ref: parseFloat(row['Ref']) || row['Ref'],
+                    'Thị trường': row['Thị trường'], // Chuỗi không chuyển
+                    KH: parseFloat(row['KH']) || row['KH'],
+                    TH: parseFloat(row['TH']) || row['TH'],
+                    'TH m-1': parseFloat(row['TH m-1']) || row['TH m-1'],
+                    'TH y-1': parseFloat(row['TH y-1']) || row['TH y-1'],
+                };
+            });
+            // Display results
+            document.getElementById('content').innerText = JSON.stringify(sheet1Data, null, 2);
         }
 
 
@@ -503,29 +539,6 @@
 
             // Tự động thu gọn menu sau khi chọn
             toggleMenu();
-        }
-
-        function loadchartvtc1() {
-            // Show VTC loading spinner
-            document.getElementById('vtcLoadingSpinner').style.display = 'block';
-
-            fetch('/read-excel')
-                .then(response => response.json())
-                .then(data => {
-                    const { sheet1Data, sheet3Data, sheet9Data } = data
-
-                    // Hide VTC loading spinner after data is loaded
-                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
-
-                    // Thêm các hàm tạo biểu đồ và bảng vào mảng
-                    createChartvtc1(sheet3Data);
-                })
-                .catch(error => {
-                    console.error('Error fetching VTC data:', error);
-
-                    // Hide the loading spinner in case of error
-                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
-                });
         }
 
         // Hàm hiển thị biểu tượng loading
@@ -828,7 +841,7 @@
 // Biểu đồ create_YoY_TBPSGDLK
         function create_YoY_TBPSGDLK(data) {
             const {labels, values, date} = readinputBarchart(data, 312,'YoY');
-            const name = "TB PSGD LK";
+            const name = 'TB PSGD LK';
             const compare = 'So với năm trước';
             const ctx = document.getElementById('Chart').getContext('2d');
 
@@ -848,7 +861,7 @@ function create_MoM_DTDV(data) {
 // Biểu đồ create_MoM_TBPSGDLK
         function create_MoM_TBPSGDLK(data) {
             const {labels, values, date} = readinputBarchart(data, 312,'MoM');
-            const name = "TB PSGD LK";
+            const name = 'TB PSGD LK';
             const compare = 'So với tháng trước';
             const ctx = document.getElementById('Chart').getContext('2d');
 
@@ -872,78 +885,6 @@ function create_MoM_DTDV(data) {
             const ctx = document.getElementById('Chart').getContext('2d');
             chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
         }
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
-            const name = 'DTDV';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
-            const name = 'DTDV';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
-            const name = 'DTDV';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
-            const name = 'DTDV';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
 // Biểu đồ create_DTDV_daily_trend
         function create_DTDV_daily_trend_VTC(data) {
             const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
@@ -1035,24 +976,6 @@ function create_MoM_DTDV(data) {
         }
 
 // Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VBD(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VBD163');
-            const name = 'DTDV';
-            const market = 'VBD';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VBD(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VBD312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VBD';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
         function create_DTDV_daily_trend_MOV(data) {
             const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'MOV163');
             const name = 'DTDV';
@@ -1106,404 +1029,6 @@ function create_MoM_DTDV(data) {
         }
 
 
-// Biểu đồ 2
-        function createChart2(data) {
-            const filteredData = data.filter(row => row['Ref'] === 163); 
-            const labels = filteredData.map(row => row['Thị trường']); 
-            const values = filteredData.map(row => row['TH']);   
-            
-            const date = data[0]['Date'];
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: labels,
-                        data: values,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 206, 86, 0.6)',
-                            'rgba(75, 192, 192, 0.6)',
-                            'rgba(153, 102, 255, 0.6)'
-                        ],
-                    }]
-                },
-                options: {
-                    animation: {
-                        animateRotate: true, // Hiệu ứng quay
-                        duration: 1500 // Thời gian hiệu ứng
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `Cơ cấu DTDV đến ngày ${date}`,
-                            font: {
-                                size: 18
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 30
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return `${tooltipItem.label}: ${tooltipItem.raw}`; // Hiện giá trị khi hover
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: 'black',
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value, ctx) {
-                                let total = ctx.chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0); // Tính tổng giá trị
-                                let percentage = (value / total * 100).toFixed(0); // Tính tỷ trọng và làm tròn 2 chữ số thập phân
-                                let label = ctx.chart.data.labels[ctx.dataIndex]; // Lấy nhãn tương ứng
-                                return `${label}: ${formatNumber(value)}tr USD, ${percentage}%`; // Hiển thị nhãn và giá trị
-                            }
-                        },
-                        legend: {
-                            display: false // Ẩn legend
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-        }
-
-
-// Biểu đồ 4
-        function createChart4(data) {
-            const filteredData = data.filter(row => row['ID'] === 'VTG312'); 
-            const date = data[0]['Month'];
-            const labels = filteredData.map(row => row['Date']); 
-            const values1 = [];
-            const values3 = [];
-            const values4 = [];
-
-
-            // Lặp qua các hàng dữ liệu
-            filteredData.forEach(row => {
-                // Chỉ thêm dữ liệu nếu TH và KH khác 0
-                if (row['TH'] !== 0) {
-                    values1.push(row['TH']);   // Thêm giá trị TH nếu khác 0
-                    values3.push(row['TH m-1']);   // Thêm giá trị KH nếu khác 0
-                    values4.push(row['TH y-1']);   // Thêm giá trị KH nếu khác 0
-                }
-            });
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'TH',
-                            data: values1,
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                            borderColor: 'rgba(255, 99, 132, 0.6)',
-                            fill: false,
-                            tension: 0.1
-                        },
-                        {
-                            label: 'TH m-1',
-                            data: values3,
-                            backgroundColor: 'rgba(255, 206, 86, 0.6)',
-                            borderColor: 'rgba(255, 206, 86, 0.6)',
-                            fill: false,
-                            tension: 0.1
-                        },
-                        {
-                            label: 'TH y-1',
-                            data: values4,
-                            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                            borderColor: 'rgba(153, 102, 255, 0.6)',
-                            fill: false,
-                            tension: 0.1
-                        }
-
-                    ]
-                },
-                options: {
-                    animation: {
-                        duration: 1000, // Thời gian hiệu ứng khi biểu đồ xuất hiện
-                        easing: 'easeOutBounce' // Loại hiệu ứng
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stacked: false
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text:  `Xu hướng TB PSGD LK đến ngày ${date}`,
-                            font: {
-                                size: 18
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 30
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: 'black',
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value) {
-                                return value; // Hiển thị giá trị
-                            }
-                        }
-                    }
-                },
-            });
-        }
-
-
-// Biểu đồ 5
-        function createChart5(data) {
-            const labels = data.map(row => row.Label); 
-            const values1 = data.map(row => row.Value1); // Giả sử cột Value1
-            const values2 = data.map(row => row.Value2); // Giả sử cột Value2
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    datasets: [
-                        {type: 'bar',
-                        label: 'Bar Dataset',
-                        data: values1,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        }, 
-                        {type: 'line',
-                        label: 'Line Dataset',
-                        data: values2,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        fill: false,
-                        }
-                    ],
-                    labels: labels
-                },
-                options: {
-                    animation: {
-                        duration: 1200, // Thời gian hiệu ứng
-                        easing: 'easeInOutBounce' // Hiệu ứng nảy
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            color: 'black',
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value) {
-                                return value; // Hiển thị giá trị
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-        }
-//Bieu do 6
-        function createChart6(data) {
-            const labels = data.map(row => row.Label); // Nếu muốn sử dụng labels
-            const bubbleData = data.map(row => ({
-                x: row.x, // Giá trị x của từng điểm
-                y: row.y, // Giá trị y của từng điểm
-                r: row.r  // Bán kính (kích thước) của từng bong bóng
-            }));
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'bubble',
-                data: {
-                    // Dữ liệu phải là một danh sách các đối tượng {x, y, r}
-                    datasets: [{
-                        label: 'Biểu đồ Bong bóng',
-                        data: bubbleData,  // Mảng chứa các điểm dữ liệu với x, y, r
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    animation: {
-                        duration: 1800, // Thời gian hiệu ứng
-                        easing: 'easeOutCirc' // Hiệu ứng cong
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Giá trị trục X'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Giá trị trục Y'
-                            }
-                        }
-                    },
-                    plugins: {
-                        datalabels: { // Plugin để hiển thị giá trị trên cột
-                            display: true,
-                            color: 'black', // Màu chữ
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value) {
-                                return value; // Hiển thị giá trị
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-        }
-
-//Bieu do 7
-        function createChart7(data) {
-            const filteredData = data.filter(row => row['Ref'] === 312); 
-            const labels = filteredData.map(row => row['Thị trường']); 
-            const values = filteredData.map(row => row['TH']);   
-            
-            const date = data[0]['Date'];
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'polarArea',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values, 
-                        backgroundColor: [
-                            'rgb(255, 99, 132)',
-                            'rgb(75, 192, 192)',
-                            'rgb(255, 205, 86)',
-                            'rgb(201, 203, 207)',
-                            'rgb(54, 162, 235)'
-                        ]
-                    }]
-                },
-                options: {
-                    animation: {
-                        duration: 1500, // Thời gian hiệu ứng
-                        animateScale: true // Hiệu ứng mở rộng
-                    },
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                        },
-                    },
-                    plugins: {
-                        datalabels: { // Plugin để hiển thị giá trị trên cột
-                            display: true,
-                            color: 'black', // Màu chữ
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value) {
-                                return `${formatNumber(value/1000000)}tr TB`; // Hiển thị giá trị
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-        }        
-
-//Bieu do 8
-        function createChart8(data) {
-            const labels = data.map(row => row.Label); 
-            const values1 = data.map(row => row.Value1);
-            const values2 = data.map(row => row.Value2);
-
-
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'My First Dataset',
-                        data: values1,
-                        fill: true,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        pointBackgroundColor: 'rgb(255, 99, 132)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(255, 99, 132)'
-                    }, {
-                        label: 'My Second Dataset',
-                        data: values2,
-                        fill: true,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        pointBackgroundColor: 'rgb(54, 162, 235)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(54, 162, 235)'
-                    }]
-                },
-                options: {
-                    animation: {
-                        duration: 2000, // Thời gian hiệu ứng
-                        easing: 'easeInOutElastic' // Hiệu ứng "elastic"
-                    },
-                    elements: {
-                        line: {
-                            borderWidth: 3
-                        }
-                    },
-                    plugins: {
-                        datalabels: { // Plugin để hiển thị giá trị trên cột
-                            display: true,
-                            color: 'black', // Màu chữ
-                            font: {
-                                weight: 'bold'
-                            },
-                            anchor: 'end',
-                            align: 'start',
-                            formatter: function(value) {
-                                return value; // Hiển thị giá trị
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-        }  
 
 // Hàm tạo bảng 9
         function createTable9(data) {
@@ -1570,15 +1095,37 @@ function create_MoM_DTDV(data) {
                 table.appendChild(tr);
             });
         }
-                // Biểu đồ 1vtc
+        //////////////
+        function loadchartvtc1() {
+            // Show VTC loading spinner
+            document.getElementById('vtcLoadingSpinner').style.display = 'block';
+
+            fetch('/read-excel')
+                .then(response => response.json())
+                .then(data => {
+                    const { sheet1Data, sheet3Data, sheet9Data } = data
+
+                    // Hide VTC loading spinner after data is loaded
+                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
+
+                    // Thêm các hàm tạo biểu đồ và bảng vào mảng
+                    createChartvtc1(sheet3Data);
+                })
+                .catch(error => {
+                    console.error('Error fetching VTC data:', error);
+
+                    // Hide the loading spinner in case of error
+                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
+                });
+        }
+
+        // Biểu đồ 1vtc
         function createChartvtc1(data) {
             const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
             const ctx = document.getElementById('Chartvtc1').getContext('2d');
             const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date);
         }
 
-
-        
 
     </script>
 </body>
