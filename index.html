@@ -367,12 +367,12 @@
                 // Fetch data from Sheet1 and Sheet3
                 responseSheet1 = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet1!A2:K', // Adjust range as needed
+                    range: 'Sheet1!A:K', // Adjust range as needed
                 });
                 
                 responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet3!A2:I', // Adjust range as needed
+                    range: 'Sheet3!A:I', // Adjust range as needed
                 });
             } catch (err) {
                 document.getElementById('content').innerText = err.message;
@@ -424,7 +424,6 @@
                 document.getElementById('content').innerText = `No values found in ${sheetName}.`;
                 return [];
             }
-
             // Get headers from the first row
             const headers = range.values[0];
             const jsonData = [];
@@ -433,9 +432,15 @@
             range.values.slice(1).forEach(row => {  // Use slice(1) to skip the header row
                 const rowData = {};
                 headers.forEach((header, index) => {
-                    // Check if the row has enough columns, if not fill with null
-                    rowData[header] = row[index] !== undefined ? row[index] : null;
+                    let cellValue = row[index] !== undefined ? row[index] : null;
+                    // Try to convert to a number if possible
+                    if (!isNaN(cellValue) && cellValue !== null && cellValue !== '') {
+                        cellValue = parseFloat(cellValue); 
+                    }
+                    
+                    rowData[header] = cellValue;
                 });
+
                 jsonData.push(rowData);
             });
 
@@ -1104,7 +1109,6 @@ function create_MoM_DTDV(data) {
             const ctx = document.getElementById('Chartvtc1').getContext('2d');
             const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date);
         }
-     
 
     </script>
 </body>
