@@ -240,10 +240,10 @@
         window.onload = function() {
             showLoading();
             if (gapiInited && gisInited) {
-                fetchExcelData();
+                maybeEnableButtons(); // This will handle auto-login if token exists
             }
-            
         };
+
 
         // TODO(developer): Set to client ID and API key from the Developer Console
         const CLIENT_ID = '199195142502-husfgej42uh6r285vq91n92vhs4urae3.apps.googleusercontent.com';
@@ -280,7 +280,7 @@
          * Callback after the API client is loaded. Loads the
          * discovery doc to initialize the API.
          */
-         async function initializeGapiClient() {
+        async function initializeGapiClient() {
             await gapi.client.init({
                 apiKey: API_KEY,
                 discoveryDocs: [DISCOVERY_DOC],
@@ -317,9 +317,48 @@
          */
         function maybeEnableButtons() {
             if (gapiInited && gisInited) {
-                document.getElementById('authorize_button').style.display = 'block';
+                const storedToken = sessionStorage.getItem('access_token');
+                if (storedToken) {
+                    gapi.client.setToken({ access_token: storedToken });
+                    // Fetch user info to ensure the token is still valid
+                    gapi.client.oauth2.userinfo.get().then(response => {
+                        const userEmail = response.result.email;
+                        if (ALLOWED_ACCOUNT_EMAILS.includes(userEmail)) {
+                            document.getElementById('authorize_button').innerText = 'Refresh';
+                            document.getElementById('signout_button').style.display = 'block';
+                            fetchExcelData();  // Automatically fetch data if valid token exists
+                        } else {
+                            alert('You are not allowed to access this application.');
+                            handleSignoutClick(); // Force sign-out if unauthorized email
+                        }
+                    }).catch(err => {
+                        console.log('Token invalid or expired, need to re-authorize.');
+                        handleSignoutClick(); // Sign out if token is invalid/expired
+                    });
+                } else {
+                    document.getElementById('authorize_button').style.display = 'block';
+                }
             }
         }
+
+        function checkAndRefreshToken() {
+            // Xóa token cũ trước khi kiểm tra
+            sessionStorage.removeItem('access_token');
+            
+            const token = gapi.client.getToken();
+            if (token) {
+                const expiresIn = token.expires_in || 3600;  // Default to 1 hour if not provided
+                const expirationTime = token.timestamp + expiresIn * 1000;
+
+                // If the token is close to expiring (within 1 minutes), refresh it
+                if (Date.now() > expirationTime - 1 * 60 * 1000) {
+                    tokenClient.requestAccessToken({ prompt: '' });
+                }
+            }
+        }
+
+        setInterval(checkAndRefreshToken, 1 * 60 * 1000);  // Check every 1 minutes
+
 
         /**
          *  Sign in the user upon button click.
@@ -329,6 +368,9 @@
                 if (resp.error !== undefined) {
                     throw (resp);
                 }
+                // Lưu token vào sessionStorage
+                const token = gapi.client.getToken();
+                sessionStorage.setItem('access_token', token.access_token);
 
                 // Lấy thông tin người dùng
                 const userInfo = await gapi.client.oauth2.userinfo.get().then(response => response.result);
@@ -433,11 +475,6 @@
             hideLoading(); // Hide the loading icon after data is loaded
             startLoop();   // Show the first chart and start looping through
         }
-        // Automatically update every minute
-        setInterval(fetchExcelData, 60000); // 60000 ms = 1 minute
-
-        // Initial call to load data right away without waiting for the first interval
-        fetchExcelData();
 
         function processSheetData(range, sheetName) {
             if (!range || !range.values || range.values.length == 0) {
