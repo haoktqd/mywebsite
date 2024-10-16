@@ -241,7 +241,7 @@
             showLoading();
             if (gapiInited && gisInited) {
                 fetchExcelData();
-    }
+            }
             
         };
 
@@ -257,14 +257,14 @@
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
 
 
-        const ALLOWED_ACCOUNT_EMAIL = 'ktqd.hao@gmail.com'; 
+        const ALLOWED_ACCOUNT_EMAILS = ['ktqd.hao@gmail.com', 'email2@example.com', 'email3@example.com'];
 
         let tokenClient;
         let gapiInited = false;
         let gisInited = false;
 
-        document.getElementById('authorize_button').style.visibility = 'hidden';
-        document.getElementById('signout_button').style.visibility = 'hidden';
+        document.getElementById('authorize_button').style.display = 'block';
+        document.getElementById('signout_button').style.display = 'block';
 
         
 
@@ -317,7 +317,7 @@
          */
         function maybeEnableButtons() {
             if (gapiInited && gisInited) {
-                document.getElementById('authorize_button').style.visibility = 'visible';
+                document.getElementById('authorize_button').style.display = 'block';
             }
         }
 
@@ -335,19 +335,19 @@
                 const userEmail = userInfo.email;
 
                 // Kiểm tra xem người dùng có phải tài khoản được phép không
-                if (userEmail !== ALLOWED_ACCOUNT_EMAIL) {
+                if (!ALLOWED_ACCOUNT_EMAILS.includes(userEmail)) {
                     alert('You are not allowed to access this application.');
                     handleSignoutClick(); // Đăng xuất nếu không phải tài khoản được phép
                     return;
                 }
 
-                document.getElementById('signout_button').style.visibility = 'visible';
+                document.getElementById('signout_button').style.display = 'block';
                 document.getElementById('authorize_button').innerText = 'Refresh';
                 await fetchExcelData(); 
 
                 // Ẩn các nút sau khi dữ liệu đã được tải
-                document.getElementById('authorize_button').style.visibility = 'hidden';
-                document.getElementById('signout_button').style.visibility = 'hidden';
+                document.getElementById('authorize_button').style.display = 'none';
+                document.getElementById('signout_button').style.display = 'none';
             };
 
             if (gapi.client.getToken() === null) {
@@ -367,9 +367,9 @@
                 gapi.client.setToken('');
                 document.getElementById('content').innerText = '';
                 document.getElementById('authorize_button').innerText = 'Authorize';
-                document.getElementById('signout_button').style.visibility = 'hidden';
+                document.getElementById('signout_button').style.display = 'none';
                 // Chỉ hiện nút authorize lại khi người dùng sign out
-                document.getElementById('authorize_button').style.visibility = 'visible';
+                document.getElementById('authorize_button').style.display = 'block';
             }
         }
 
@@ -401,6 +401,8 @@
             const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
 
             console.log(sheet1Data, sheet3Data);
+            // Clear existing chart functions before pushing new ones
+            chartFunctions.length = 0; // Empty the array before re-populating
 
             chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
             chartFunctions.push(() => create_HTKH_TBPSGDTT(sheet1Data));
@@ -431,6 +433,11 @@
             hideLoading(); // Hide the loading icon after data is loaded
             startLoop();   // Show the first chart and start looping through
         }
+        // Automatically update every minute
+        setInterval(fetchExcelData, 60000); // 60000 ms = 1 minute
+
+        // Initial call to load data right away without waiting for the first interval
+        fetchExcelData();
 
         function processSheetData(range, sheetName) {
             if (!range || !range.values || range.values.length == 0) {
