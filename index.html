@@ -185,7 +185,7 @@
     <!-- Add buttons to initiate auth sequence and sign out -->
     <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <!-- <pre id="content" style="white-space: pre-wrap;"></pre> -->
 
     <div class="header">
         <div class="menu"></div>
@@ -344,7 +344,7 @@
         function checkAndRefreshToken() {
             // Xóa token cũ trước khi kiểm tra
             sessionStorage.removeItem('access_token');
-            
+
             const token = gapi.client.getToken();
             if (token) {
                 const expiresIn = token.expires_in || 3600;  // Default to 1 hour if not provided
