@@ -13,16 +13,17 @@
     <style>
 
         #loadingSpinner {
-            position: fixed;
+            position: fixed; /* Đảm bảo spinner cố định ở giữa màn hình */
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 20px;
             font-weight: bold;
             color: #ae1e6a;
+            z-index: 9999; 
         }
 
-         /* Spinner styling */
+        /* Spinner styling */
         .spinner {
             border: 8px solid rgba(0, 0, 0, 0.1); /* Màu viền mờ */
             border-top: 8px solid #ae1e6a; /* Viền trên sẽ có màu nổi bật */
@@ -30,7 +31,7 @@
             width: 60px; /* Kích thước của biểu tượng */
             height: 60px; 
             animation: spin 1s linear infinite; /* Tạo hiệu ứng xoay */
-            display: inline-block;
+            margin: auto;
         }
 
         /* Keyframes cho hiệu ứng xoay tròn */
@@ -45,7 +46,7 @@
 
         /* Centering the spinner */
         #vtcLoadingSpinner, #loadingSpinner {
-            display: flex;
+            display: fixed;
             justify-content: center;
             align-items: center;
             height: 100px; 
@@ -54,7 +55,7 @@
 
         #ChartContainer, #vtcContent {
             display: flex;
-            justify-content: center; 
+            justify-content: cen    ter; 
             align-items: center;  
             display: flex; 
             flex-direction: column;
@@ -182,18 +183,19 @@
     
 </head>
 <body>
-    <!-- Add buttons to initiate auth sequence and sign out -->
-    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
-    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    <!-- <pre id="content" style="white-space: pre-wrap;"></pre> -->
+    
 
     <div class="header">
         <div class="menu"></div>
             <div class="hamburger" onclick="toggleMenu()">&#9776;</div> 
+            
             <div id="menuContent" class="menu-content">
                 <a href="#" onclick="showDashboard()">Dashboard</a>
                 <a href="#" onclick="showVTC()">VTC</a>
                 <a href="#" onclick="showCredit()">Credit</a>
+                    <!-- Add buttons to initiate auth sequence and sign out -->
+                <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+                <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
                 
             </div>
         </div>
@@ -204,7 +206,9 @@
     <!-- Loading spinner -->
     <div id="loadingSpinner" style="display: none;">
         <div class="spinner"></div>
-        <p>Loading...</p>
+        <div style="text-align: center;">
+            <p>Click &#9776;, then click Authorize</p>
+        </div>
     </div>
 
     <div id="ChartContainer">
@@ -263,8 +267,8 @@
         let gapiInited = false;
         let gisInited = false;
 
-        document.getElementById('authorize_button').style.display = 'block';
-        document.getElementById('signout_button').style.display = 'block';
+        document.getElementById('authorize_button').style.display = 'static';
+        document.getElementById('signout_button').style.display = 'static';
 
         
 
@@ -388,7 +392,7 @@
                 await fetchExcelData(); 
 
                 // Ẩn các nút sau khi dữ liệu đã được tải
-                document.getElementById('authorize_button').style.display = 'none';
+                document.getElementById('authorize_button').style.display = 'flex';
                 document.getElementById('signout_button').style.display = 'none';
             };
 
@@ -816,7 +820,7 @@
                             color: function(context) {
                                 // Change label color based on bar color
                                 return context.dataset.backgroundColor[context.dataIndex] === 'rgb(231, 0, 58)' 
-                                    ? 'white' // White text for red bars
+                                    ? 'gray' // White text for red bars
                                     : 'black'; // Black text for other bars
                             },
                             font: {
