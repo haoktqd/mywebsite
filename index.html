@@ -423,7 +423,6 @@
             const rangeSheet3 = responseSheet3.result;
             const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
 
-            console.log(sheet1Data, sheet3Data);
             // Clear existing chart functions before pushing new ones
             chartFunctions.length = 0; // Empty the array before re-populating
 
@@ -481,8 +480,6 @@
 
                 jsonData.push(rowData);
             });
-
-            console.log(`Processed data from ${sheetName}:`, jsonData);
             
             return jsonData;
         }
@@ -501,7 +498,7 @@
 
                 // Gọi hàm tạo biểu đồ hoặc bảng tiếp theo từ mảng
                 chartFunctions[currentChartIndex]();
-            }, 3000); // Chuyển đổi mỗi 3 giây
+            }, 30000); // Chuyển đổi mỗi 30 giây
         }
 
         function destroyChartorTable() {
