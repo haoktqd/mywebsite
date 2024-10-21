@@ -794,7 +794,7 @@
                             color: function(context) {
                                 // Change label color based on bar color
                                 return context.dataset.backgroundColor[context.dataIndex] === 'rgb(231, 0, 58)' 
-                                    ? 'gray' // White text for red bars
+                                    ? 'black' // White text for red bars
                                     : 'black'; // Black text for other bars
                             },
                             font: {
@@ -803,6 +803,7 @@
                             },
                             anchor: 'end',
                             align: 'start',
+                            offset: -50,
                             formatter: function(value) {
                                 return formatPercentage(value); // Display value as percentage
                             }
