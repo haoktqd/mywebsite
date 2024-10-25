@@ -207,7 +207,8 @@
     <div id="loadingSpinner" style="display: none;">
         <div class="spinner"></div>
         <div style="text-align: center;">
-            <p>Click &#9776;, then click Authorize</p>
+            <p>Click Authorize and wait until Charts appear</p>
+            <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
         </div>
     </div>
 
@@ -264,7 +265,7 @@
         let gisInited = false;
 
         document.getElementById('authorize_button').style.display = 'static';
-        document.getElementById('signout_button').style.display = 'static';
+        document.getElementById('signout_button').style.display = 'none';
 
         /**
          * Callback after api.js is loaded.
@@ -384,6 +385,7 @@
          *  Sign out the user upon button click.
          */
         function handleSignoutClick() {
+            alert('Bạn đã sign out')
             const token = gapi.client.getToken();
             if (token !== null) {
                 google.accounts.oauth2.revoke(token.access_token);
@@ -402,13 +404,19 @@
                 // Fetch data from Sheet1 and Sheet3
                 responseSheet1 = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet1!A:K', // Adjust range as needed
+                    range: 'Sheet1!A:K', 
                 });
                 
                 responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet3!A:I', // Adjust range as needed
+                    range: 'Sheet3!A:I', 
                 });
+
+                responseSheet9 = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
+                    range: 'Sheet9!A:J',
+                });
+
             } catch (err) {
                 document.getElementById('content').innerText = err.message;
                 hideLoading(); 
@@ -422,6 +430,10 @@
             // Process Sheet3 Data
             const rangeSheet3 = responseSheet3.result;
             const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
+
+            // Process Sheet9 Data
+            const rangeSheet9 = responseSheet9.result;
+            const sheet9Data = processSheetData(rangeSheet9, 'Sheet9');
 
             // Clear existing chart functions before pushing new ones
             chartFunctions.length = 0; // Empty the array before re-populating
@@ -451,6 +463,8 @@
             chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTZ(sheet3Data));
             chartFunctions.push(() => create_DTDV_daily_trend_NCM(sheet3Data));
             chartFunctions.push(() => create_TBPSGDLK_daily_trend_NCM(sheet3Data));
+            chartFunctions.push(() => createTable9(sheet9Data));
+            
 
             hideLoading(); // Hide the loading icon after data is loaded
             startLoop();   // Show the first chart and start looping through
@@ -498,7 +512,7 @@
 
                 // Gọi hàm tạo biểu đồ hoặc bảng tiếp theo từ mảng
                 chartFunctions[currentChartIndex]();
-            }, 10000); // Chuyển đổi mỗi 10 giây
+            }, 3000); // Chuyển đổi mỗi 10 giây
         }
 
         function destroyChartorTable() {
@@ -1091,8 +1105,8 @@ function create_MoM_DTDV(data) {
                         td.className = 'center-align'; // Các cột còn lại căn lề giữa
                     }
 
-                    // Kiểm tra hàng và áp dụng định dạng phần trăm cho các hàng 1, 4, 7, 10, 13
-                    if (rowIndex === 0 || rowIndex === 3 || rowIndex === 6 || rowIndex === 9 || rowIndex === 12) {
+                    // Kiểm tra hàng và áp dụng định dạng phần trăm cho các hàng 1, 6, 11, 16, 21
+                    if (rowIndex === 0 || rowIndex === 5 || rowIndex === 10 || rowIndex === 15 || rowIndex === 20) {
                         td.textContent = formatPercentage(value);
                         td.classList.add('bold'); 
                         // Nếu giá trị < 1, tô màu đỏ
