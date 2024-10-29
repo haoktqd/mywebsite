@@ -116,7 +116,7 @@
             border-collapse: collapse;
             font-family: Arial, sans-serif;
             box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            border-radius:  1px;
             overflow: hidden;
         }
 
@@ -132,7 +132,7 @@
 
         /* Định dạng cho các hàng dữ liệu */
         #excelTable9 td {
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -217,14 +217,21 @@
     </div>
 
     <div id="vtcContent" style="display:none;">
-        <h2>Nội dung cho VTC</h2>
 
         <div id="vtcLoadingSpinner" style="display: none;">
             <div class="spinner"></div>
-            <p>Loading VTC Data...</p>
+            <p>Loading Data...</p>
         </div>
 
-        <canvas id="Chartvtc1"></canvas>
+        <div style="display: flex;">
+            <div>
+                <canvas id="Chartvtc1" style="display: inline-block; width: 45%;"></canvas>
+                <canvas id="Chartstl1" style="display: inline-block; width: 45%;"></canvas>
+            </div>
+        </div>
+
+
+        
     </div>
 
     <div id="credit" style="display:none;">
@@ -325,12 +332,15 @@
                     }).catch(err => {
                         console.log('Token invalid or expired, need to re-authorize.');
                         handleSignoutClick(); // Sign out if token is invalid/expired
+                        handleAuthClick(); // Automatically call authorize after signout if needed
                     });
                 } else {
-                    document.getElementById('authorize_button').style.display = 'block';
+                    // Automatically show authorization flow when the user is not signed in
+                    handleAuthClick();
                 }
             }
         }
+
 
         function checkAndRefreshToken() {
             // Xóa token cũ trước khi kiểm tra
@@ -399,7 +409,7 @@
         }
 
         async function fetchExcelData() {
-            let responseSheet1, responseSheet3;
+            let responseSheet1, responseSheet3,responseSheet9;
             try {
                 // Fetch data from Sheet1 and Sheet3
                 responseSheet1 = await gapi.client.sheets.spreadsheets.values.get({
@@ -1063,18 +1073,24 @@ function create_MoM_DTDV(data) {
         }
 
 
-
 // Hàm tạo bảng 9
         function createTable9(data) {
             // Xóa canvas trước khi hiển thị bảng
             const chartContainer = document.getElementById('ChartContainer');
             chartContainer.innerHTML = ""; // Xóa nội dung (canvas)
 
-            // Tạo bảng mới
-            const table = document.createElement('table');
-            table.id = 'excelTable9';
-            chartContainer.appendChild(table); // Thêm bảng vào container
+            // Gọi hàm createTable để tạo bảng với dữ liệu
+            const table = createTable(data);
 
+            // Thêm bảng vào container
+            chartContainer.appendChild(table);
+        }
+
+        function createTable(data) {
+            // Tạo phần tử bảng
+            const table = document.createElement('table');
+            table.id = 'excelTable9'; // This matches your previous setup
+            
             // Thêm tiêu đề cho bảng
             const caption = document.createElement('caption');
             caption.textContent = "Bảng tổng hợp"; // Thay đổi văn bản tiêu đề theo ý bạn
@@ -1118,8 +1134,8 @@ function create_MoM_DTDV(data) {
                     }
 
                     tr.appendChild(td);
-                    
                 });
+
                 // Tô màu nền xen kẽ cho các hàng
                 if (rowIndex % 2 === 0) {
                     tr.classList.add('even-row');
@@ -1128,36 +1144,57 @@ function create_MoM_DTDV(data) {
                 }
                 table.appendChild(tr);
             });
+
+            return table; // Return the table so it can be appended later
         }
+
+
+
         //////////////
-        function loadchartvtc1() {
+        async function loadchartvtc1() {
             // Show VTC loading spinner
             document.getElementById('vtcLoadingSpinner').style.display = 'block';
 
-            fetch('/read-excel')
-                .then(response => response.json())
-                .then(data => {
-                    const { sheet1Data, sheet3Data, sheet9Data } = data
-
-                    // Hide VTC loading spinner after data is loaded
-                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
-
-                    // Thêm các hàm tạo biểu đồ và bảng vào mảng
-                    createChartvtc1(sheet3Data);
-                })
-                .catch(error => {
-                    console.error('Error fetching VTC data:', error);
-
-                    // Hide the loading spinner in case of error
-                    document.getElementById('vtcLoadingSpinner').style.display = 'none';
+            let responseSheet3;
+            try {
+                // Fetch data from Sheet1 and Sheet3
+                responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
+                    range: 'Sheet3!A:I', 
                 });
+                
+            } catch (err) {
+                document.getElementById('content').innerText = err.message;
+                hideLoading(); 
+                return;
+            }
+            document.getElementById('vtcLoadingSpinner').style.display = 'none';
+
+            // Process Sheet1 Data
+            const rangeSheet3 = responseSheet3.result;
+            const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
+
+            createChartvtc1(sheet3Data);
+            createChartstl1(sheet3Data);
+
         }
 
         // Biểu đồ 1vtc
         function createChartvtc1(data) {
             const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
+            const name = 'DTDV';
+            const market = 'VTC';
             const ctx = document.getElementById('Chartvtc1').getContext('2d');
-            const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date);
+            const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+        }
+
+        // Biểu đồ 1vtc
+        function createChartstl1(data) {
+            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'STL163');
+            const name = 'DTDV';
+            const market = 'STL';
+            const ctx = document.getElementById('Chartstl1').getContext('2d');
+            const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
         }
 
     </script>
