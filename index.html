@@ -12,7 +12,7 @@
 
     <style>
 
-        #loadingSpinner {
+        #loadingSpinner,#vtgLoadingSpinner {
             position: fixed; /* Đảm bảo spinner cố định ở giữa màn hình */
             top: 50%;
             left: 50%;
@@ -22,6 +22,7 @@
             color: #ae1e6a;
             z-index: 9999; 
         }
+
 
         /* Spinner styling */
         .spinner {
@@ -44,24 +45,17 @@
             }
         }
 
-        /* Centering the spinner */
-        #vtcLoadingSpinner, #loadingSpinner {
-            display: fixed;
-            justify-content: center;
-            align-items: center;
-            height: 100px; 
-            margin-top: 20px;
-        }
-
-        #ChartContainer, #vtcContent {
+        
+        #ChartContainer, #vtgContent, #vtcContent, #stlContent, #vtlContent,#mynContent,#vbdContent,#movContent,#vtzContent, #ncmContent {
             display: flex;
-            justify-content: cen    ter; 
+            justify-content: center; 
             align-items: center;  
             display: flex; 
             flex-direction: column;
         }
 
         canvas {
+            display: block;
             max-width: 95vw; 
             max-height: 95vh;
             align-items: center;
@@ -77,6 +71,36 @@
             text-align: left;
         }
 
+
+        button {
+            padding: 12px 24px; /* Tăng khoảng cách bên trong nút */
+            font-size: 16px; /* Kích thước chữ */
+            border: none; /* Xóa viền mặc định */
+            border-radius: 8px; /* Bo góc cho nút */
+            cursor: pointer; /* Thay đổi con trỏ khi di chuột qua nút */
+            transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển đổi */
+        }
+
+        #authorize_button {
+            background-color: #4CAF50; /* Màu nền xanh */
+            color: white; /* Màu chữ trắng */
+        }
+
+        #authorize_button:hover {
+            background-color: #45a049; /* Màu nền khi di chuột qua */
+            transform: scale(1.05); /* Tăng kích thước một chút khi di chuột */
+        }
+
+        #signout_button {
+            background-color: #f44336; /* Màu nền đỏ */
+            color: white; /* Màu chữ trắng */
+        }
+
+        #signout_button:hover {
+            background-color: #e53935; /* Màu nền khi di chuột qua */
+            transform: scale(1.05); /* Tăng kích thước một chút khi di chuột */
+        }
+
         /* Menu Styling */
         .menu {
             position: relative;
@@ -89,23 +113,33 @@
 
         .menu-content {
             display: none;
-            position: relative;
-            background-color: #f1f1f1;
+            position: fixed;
+            color: #171717;
+            background-color: #ffffff;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
+            border: 1px solid #ae1e6a; /* Thêm viền cho menu */
+            border-radius: 4px; /* Thêm góc bo nếu muốn */
         }
 
         .menu-content a {
-            color: black;
+            color: rgb(41, 38, 38);
             padding: 12px 16px;
             text-decoration: none;
-            display: block;
+            display: block; /* Thay đổi thành block để các đường viền hoạt động chính xác */
+            border-bottom: 1px solid #e0e0e0; /* Đường phân biệt giữa các dòng */
+        }
+
+        .menu-content a:last-child {
+            border-bottom: none; /* Xóa đường viền dưới cùng */
         }
 
         .menu-content a:hover {
-            background-color: #ddd;
+            background-color: #ae1e6a;
+            color: #ffffff;
         }
+
 
         .show {
             display: block;
@@ -175,8 +209,8 @@
             cursor: pointer;
         }
 
-        #Chartvtc1, #Chartstl1 {
-            display: inline-block; /* Điều chỉnh display thành inline-block hoặc block nếu muốn */
+        #Chartvtg1, #Chartvtg2 {
+            display: inline-block;
             width: 100%;
             margin: auto;
             align-items: center;
@@ -195,8 +229,19 @@
             
             <div id="menuContent" class="menu-content">
                 <a href="#" onclick="showDashboard()">Dashboard</a>
+
+                <a href="#" onclick="showVTG()">VTG</a>
                 <a href="#" onclick="showVTC()">VTC</a>
-                <a href="#" onclick="showCredit()">Credit</a>
+                <a href="#" onclick="showSTL()">STL</a>
+                <a href="#" onclick="showVTL()">VTL</a>
+                <a href="#" onclick="showMYN()">MYN</a>
+                <a href="#" onclick="showVBD()">VBD</a>
+                <a href="#" onclick="showMOV()">MOV</a>
+                <a href="#" onclick="showVTZ()">VTZ</a>
+                <a href="#" onclick="showNCM()">NCM</a>
+
+                <a href="#" onclick="showCredit()">User agreement</a>
+
                     <!-- Add buttons to initiate auth sequence and sign out -->
                 <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
                 <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
@@ -211,7 +256,7 @@
     <div id="loadingSpinner" style="display: none;">
         <div class="spinner"></div>
         <div style="text-align: center;">
-            <p>Click Authorize and wait until Charts appear</p>
+            <p>Click Authorize và chờ biểu đồ hiển thị</p>
             <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
         </div>
     </div>
@@ -220,33 +265,118 @@
         <canvas id="Chart"></canvas>
     </div>
 
-    <div id="vtcContent" style="display:none;">
-
-        <div id="vtcLoadingSpinner" style="display: none;">
+    <div id="vtgContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
             <div class="spinner"></div>
             <p>Loading Data...</p>
         </div>
-
+        <canvas id="Chartvtg1"></canvas>
+        <canvas id="Chartvtg2"></canvas>
+        <div id="Tablevtg1"></div>
+    </div>
+    
+    <div id="vtcContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
         <canvas id="Chartvtc1"></canvas>
-        <div id="Chartstl1"></div>
+        <canvas id="Chartvtc2"></canvas>
+        <div id="Tablevtc1"></div>
+    </div>
 
+    <div id="stlContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartstl1"></canvas>
+        <canvas id="Chartstl2"></canvas>
+        <div id="Tablestl1"></div>
+    </div>
+
+    <div id="vtlContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartvtl1"></canvas>
+        <canvas id="Chartvtl2"></canvas>
+        <div id="Tablevtl1"></div>
+    </div>
+
+    <div id="mynContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartmyn1"></canvas>
+        <canvas id="Chartmyn2"></canvas>
+        <div id="Tablemyn1"></div>
+    </div>
+
+    <div id="vbdContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartvbd1"></canvas>
+        <canvas id="Chartvbd2"></canvas>
+        <div id="Tablevbd1"></div>
+    </div>
+
+    <div id="movContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartmov1"></canvas>
+        <canvas id="Chartmov2"></canvas>
+        <div id="Tablemov1"></div>
+    </div>
+
+    <div id="vtzContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartvtz1"></canvas>
+        <canvas id="Chartvtz2"></canvas>
+        <div id="Tablevtz1"></div>
+    </div>
+
+    <div id="ncmContent" style="display:none;">
+        <div id="vtgLoadingSpinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading Data...</p>
+        </div>
+        <canvas id="Chartncm1"></canvas>
+        <canvas id="Chartncm2"></canvas>
+        <div id="Tablencm1"></div>
     </div>
 
     <div id="credit" style="display:none;">
-        <h2>Version 1.0</h2>
-        <p>Support by ChatGPT, Chart.js</p>
+        <pre id = "user_agreement"style="white-space: pre-wrap;font-family: Arial, sans-serif;"></pre>
+        <p style="white-space: pre-wrap;font-family: Arial, sans-serif;">Tác giả: Nguyễn Văn Hào</p>
     </div>
 
-    
 
     <script type="text/javascript">
+
+        // Hàm để tải và hiển thị nội dung file user_agreement.txt
+        fetch('user_agreement.txt')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('user_agreement').textContent = data;
+            })
+            .catch(error => console.error('Error loading user agreement:', error));
+
         let chartInstance; // Biến lưu giữ biểu đồ hiện tại
         let currentChartIndex = 0; // Bắt đầu từ biểu đồ đầu tiên
         let intervalId; // Biến lưu giữ quá trình lặp
         const chartFunctions = []; // Mảng lưu tất cả các hàm tạo biểu đồ
         
 
-        
         window.onload = function() {
             showLoading();
             if (gapiInited && gisInited) {
@@ -406,77 +536,178 @@
             }
         }
 
-        async function fetchExcelData() {
-            let responseSheet1, responseSheet3,responseSheet9;
+
+        // Menu Toggle Function
+        function toggleMenu() {
+            const menu = document.getElementById('menuContent');
+            //menuContent.style.display = menuContent.style.display === "block" ? "none" 
+            menu.classList.toggle("show");
+        }
+
+        // Show Dashboard Function (default behavior)
+        function showDashboard() {
+            hideAllSections();
+            document.getElementById('ChartContainer').style.display = "flex"; // Show chart container
+
+            startLoop(); 
+
+            toggleMenu();
+        }
+
+        
+
+        function showVTG() {
+            hideAllSections();
+            document.getElementById('vtgContent').style.display = "flex"; 
+
+            loadChartvtg1();
+
+            toggleMenu();
+        }
+
+        function showVTC() {
+            hideAllSections();
+            document.getElementById('vtcContent').style.display = "flex"; 
+
+            loadChartvtc1();
+
+            toggleMenu();
+        }
+
+        function showSTL() {
+            hideAllSections();
+            document.getElementById('stlContent').style.display = "flex"; 
+
+            loadChartstl1();
+
+            toggleMenu();
+        }
+
+        function showVTL() {
+            hideAllSections();
+            document.getElementById('vtlContent').style.display = "flex"; 
+
+            loadChartvtl1();
+
+            toggleMenu();
+        }
+
+        function showMYN() {
+            hideAllSections();
+            document.getElementById('mynContent').style.display = "flex"; 
+
+            loadChartmyn1();
+            toggleMenu();
+        }
+
+        function showVBD() {
+            hideAllSections();
+            document.getElementById('vbdContent').style.display = "flex"; 
+
+            loadChartvbd1();
+
+            toggleMenu();
+        }
+
+        function showMOV() {
+            hideAllSections();
+            document.getElementById('movContent').style.display = "flex"; 
+
+            loadChartmov1();
+
+            toggleMenu();
+        }
+
+        function showVTZ() {
+            hideAllSections();
+            document.getElementById('vtzContent').style.display = "flex"; 
+
+            loadChartvtz1();
+
+            toggleMenu();
+        }
+
+        function showNCM() {
+            hideAllSections();
+            document.getElementById('ncmContent').style.display = "flex"; 
+
+            loadChartncm1();
+
+            toggleMenu();
+        }
+
+        // Show Credit Function
+        function showCredit() {
+            hideAllSections();
+            document.getElementById('credit').style.display = "block"; // Show credit section
+
+            toggleMenu();
+        }
+
+        // Hàm để ẩn tất cả các phần khác
+        function hideAllSections() {
+            document.getElementById('ChartContainer').style.display = "none";
+            document.getElementById('vtgContent').style.display = "none";
+            document.getElementById('vtcContent').style.display = "none";
+            document.getElementById('stlContent').style.display = "none";
+            document.getElementById('vtlContent').style.display = "none";
+            document.getElementById('mynContent').style.display = "none";
+            document.getElementById('vbdContent').style.display = "none";
+            document.getElementById('movContent').style.display = "none";
+            document.getElementById('vtzContent').style.display = "none";
+            document.getElementById('ncmContent').style.display = "none";
+            document.getElementById('credit').style.display = "none";
+        }
+
+        // Hàm hiển thị biểu tượng loading
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        // Hàm ẩn biểu tượng loading
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Close the menu when clicking outside of it
+        window.onclick = function(event) {
+            const menu = document.getElementById('menuContent');
+            if (!event.target.matches('.hamburger')) {
+                if (menu.classList.contains('show')) {
+                    menu.classList.remove('show');
+                }
+            }
+        }
+
+        async function loadChartData(sheetRanges) {
+            // Show VTG loading spinner
+            document.getElementById('vtgLoadingSpinner').style.display = 'block';
+
+            let responses = {};
+
             try {
-                // Fetch data from Sheet
-                responseSheet1 = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet1!A:K', 
-                });
-                
-                responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet3!A:I', 
-                });
-
-                responseSheet9 = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet9!A:J',
-                });
-
+                // Fetch data from each specified range
+                for (let [sheetName, range] of Object.entries(sheetRanges)) {
+                    responses[sheetName] = await gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
+                        range: range,
+                    });
+                }
             } catch (err) {
-                console.log(err)
                 document.getElementById('content').innerText = err.message;
-                hideLoading(); 
-                return;
+                hideLoading();
+                return null;
             }
 
-            // Process Sheet1 Data
-            const rangeSheet1 = responseSheet1.result;
-            const sheet1Data = processSheetData(rangeSheet1, 'Sheet1');
+            document.getElementById('vtgLoadingSpinner').style.display = 'none';
 
-            // Process Sheet3 Data
-            const rangeSheet3 = responseSheet3.result;
-            const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
+            // Process data for each sheet
+            const processedData = {};
+            for (let sheetName in responses) {
+                processedData[sheetName] = processSheetData(responses[sheetName].result, sheetName);
+            }
 
-            // Process Sheet9 Data
-            const rangeSheet9 = responseSheet9.result;
-            const sheet9Data = processSheetData(rangeSheet9, 'Sheet9');
-
-            // Clear existing chart functions before pushing new ones
-            chartFunctions.length = 0; // Empty the array before re-populating
-
-            chartFunctions.push(() => create_HTKH_DTDV(sheet1Data));
-            chartFunctions.push(() => create_HTKH_TBPSGDTT(sheet1Data));
-            chartFunctions.push(() => create_YoY_DTDV(sheet1Data));
-            chartFunctions.push(() => create_YoY_TBPSGDLK(sheet1Data));
-            chartFunctions.push(() => create_MoM_DTDV(sheet1Data));
-            chartFunctions.push(() => create_MoM_TBPSGDLK(sheet1Data));
-
-            chartFunctions.push(() => create_DTDV_daily_trend(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_VTC(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTC(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_STL(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_STL(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_VTL(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTL(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_MYN(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MYN(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_VBD(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VBD(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_MOV(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MOV(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_VTZ(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTZ(sheet3Data));
-            chartFunctions.push(() => create_DTDV_daily_trend_NCM(sheet3Data));
-            chartFunctions.push(() => create_TBPSGDLK_daily_trend_NCM(sheet3Data)); 
-            chartFunctions.push(() => createTable9(sheet9Data));
-            
-
-            hideLoading(); // Hide the loading icon after data is loaded
-            startLoop();   // Show the first chart and start looping through
+            return processedData;
         }
 
         function processSheetData(range, sheetName) {
@@ -505,6 +736,51 @@
             });
             
             return jsonData;
+        }
+
+        async function fetchExcelData() {
+            const sheetRanges = {
+                'Sheet1': 'Sheet1!A:K',
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  // If data loading failed, exit function
+
+            // Clear existing chart functions before pushing new ones
+            chartFunctions.length = 0; // Empty the array before re-populating
+
+            chartFunctions.push(() => create_HTKH_DTDV(data['Sheet1']));
+            chartFunctions.push(() => create_HTKH_TBPSGDTT(data['Sheet1']));
+            chartFunctions.push(() => create_YoY_DTDV(data['Sheet1']));
+            chartFunctions.push(() => create_YoY_TBPSGDLK(data['Sheet1']));
+            chartFunctions.push(() => create_MoM_DTDV(data['Sheet1']));
+            chartFunctions.push(() => create_MoM_TBPSGDLK(data['Sheet1']));
+
+            chartFunctions.push(() => create_DTDV_daily_trend(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTC(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTC(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_STL(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_STL(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTL(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTL(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_MYN(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MYN(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_VBD(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VBD(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_MOV(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_MOV(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_VTZ(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_VTZ(data['Sheet3']));
+            chartFunctions.push(() => create_DTDV_daily_trend_NCM(data['Sheet3']));
+            chartFunctions.push(() => create_TBPSGDLK_daily_trend_NCM(data['Sheet3'])); 
+
+            chartFunctions.push(() => createTable9(data['Sheet9']));
+            
+            hideLoading(); // Hide the loading icon after data is loaded
+            startLoop();   // Show the first chart and start looping through
         }
 
 
@@ -544,64 +820,6 @@
             }
         }
 
-        // Menu Toggle Function
-        function toggleMenu() {
-            const menu = document.getElementById('menuContent');
-            menu.classList.toggle("show");
-        }
-
-        // Show Dashboard Function (default behavior)
-        function showDashboard() {
-            document.getElementById('credit').style.display = "none"; // Hide credit section
-            document.getElementById('ChartContainer').style.display = "flex"; // Show chart container
-            document.getElementById('vtcContent').style.display = "none"; // Hiển thị nội dung VTC
-            startLoop(); // Start the loop of charts again
-
-            // Automatically collapse the menu after selection
-            toggleMenu();
-        }
-
-        // Show Credit Function
-        function showCredit() {
-            document.getElementById('ChartContainer').style.display = "none"; // Hide chart container
-            document.getElementById('credit').style.display = "block"; // Show credit section
-            document.getElementById('vtcContent').style.display = "none"; // Hiển thị nội dung VTC
-
-            // Automatically collapse the menu after selection
-            toggleMenu();
-        }
-
-        // Show VTC Function
-        function showVTC() {
-            document.getElementById('ChartContainer').style.display = "none"; // Ẩn biểu đồ
-            document.getElementById('credit').style.display = "none"; // Ẩn phần Credit
-            document.getElementById('vtcContent').style.display = "flex"; // Hiển thị nội dung VTC
-
-            loadchartvtc1();
-
-            // Tự động thu gọn menu sau khi chọn
-            toggleMenu();
-        }
-
-        // Hàm hiển thị biểu tượng loading
-        function showLoading() {
-            document.getElementById('loadingSpinner').style.display = 'block';
-        }
-        // Hàm ẩn biểu tượng loading
-        function hideLoading() {
-            document.getElementById('loadingSpinner').style.display = 'none';
-        }
-
-        // Close the menu when clicking outside of it
-        window.onclick = function(event) {
-            const menu = document.getElementById('menuContent');
-            if (!event.target.matches('.hamburger')) {
-                if (menu.classList.contains('show')) {
-                    menu.classList.remove('show');
-                }
-            }
-        }
-
         function formatNumber(num) {
             // Kiểm tra xem num có phải là một số không
             if (typeof num !== 'number') return num; // Nếu không phải số thì trả về giá trị gốc
@@ -613,130 +831,7 @@
             return (num * 100).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'; // Định dạng phần trăm
         }
 
-        //Tạo bảng
-        function createTable2(data) {
-            // Tạo phần tử bảng
-            const table = document.createElement('table');
-            table.id = 'excelTable10'; 
-            
-            // Thêm tiêu đề cho bảng
-            const caption = document.createElement('caption');
-            caption.textContent = "Bảng tổng hợp"; // Thay đổi văn bản tiêu đề theo ý bạn
-            table.appendChild(caption);
-
-            // Tạo hàng đầu tiên (tiêu đề cột)
-            const headerRow = document.createElement('tr');
-            const headers = Object.keys(data[0]); // Lấy tên các cột từ đối tượng đầu tiên
-            headers.forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-            table.appendChild(headerRow);
-
-            // Tạo các hàng dữ liệu
-            data.forEach((row, rowIndex) => {
-                const tr = document.createElement('tr');
-                const values = Object.values(row); // Lấy các giá trị từ đối tượng hàng
-
-                values.forEach((value, index) => {
-                    const td = document.createElement('td');
-
-                    // Thêm lớp CSS dựa trên chỉ số cột
-                    if (index === 0) {
-                        td.className = 'left-align'; // Cột đầu tiên căn lề trái
-                    } else {
-                        td.className = 'center-align'; // Các cột còn lại căn lề giữa
-                    }
-
-                    // Kiểm tra hàng và áp dụng định dạng phần trăm cho các hàng 1, 6, 11, 16, 21
-                    if (rowIndex === 0 || rowIndex === 5 || rowIndex === 10 || rowIndex === 15 || rowIndex === 20) {
-                        td.textContent = formatPercentage(value);
-                        td.classList.add('bold'); 
-                        // Nếu giá trị < 1, tô màu đỏ
-                        if (value < 1) {
-                            td.classList.add('red'); // Thêm lớp đỏ
-                        }
-                    } else {
-                        td.textContent = formatNumber(value);
-                    }
-
-                    tr.appendChild(td);
-                });
-
-                // Tô màu nền xen kẽ cho các hàng
-                if (rowIndex % 2 === 0) {
-                    tr.classList.add('even-row');
-                } else {
-                    tr.classList.add('odd-row');
-                }
-                table.appendChild(tr);
-            });
-
-            return table; // Return the table so it can be appended later
-        }
         
-        function createTable(data,excelTable) {
-            // Tạo phần tử bảng
-            const table = document.createElement('table');
-            table.id = excelTable; 
-            
-            // Thêm tiêu đề cho bảng
-            const caption = document.createElement('caption');
-            caption.textContent = "Bảng tổng hợp"; // Thay đổi văn bản tiêu đề theo ý bạn
-            table.appendChild(caption);
-
-            // Tạo hàng đầu tiên (tiêu đề cột)
-            const headerRow = document.createElement('tr');
-            const headers = Object.keys(data[0]); // Lấy tên các cột từ đối tượng đầu tiên
-            headers.forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-            table.appendChild(headerRow);
-
-            // Tạo các hàng dữ liệu
-            data.forEach((row, rowIndex) => {
-                const tr = document.createElement('tr');
-                const values = Object.values(row); // Lấy các giá trị từ đối tượng hàng
-
-                values.forEach((value, index) => {
-                    const td = document.createElement('td');
-
-                    // Thêm lớp CSS dựa trên chỉ số cột
-                    if (index === 0) {
-                        td.className = 'left-align'; // Cột đầu tiên căn lề trái
-                    } else {
-                        td.className = 'center-align'; // Các cột còn lại căn lề giữa
-                    }
-
-                    // Kiểm tra hàng và áp dụng định dạng phần trăm cho các hàng 1, 6, 11, 16, 21
-                    if (rowIndex === 0 || rowIndex === 5 || rowIndex === 10 || rowIndex === 15 || rowIndex === 20) {
-                        td.textContent = formatPercentage(value);
-                        td.classList.add('bold'); 
-                        // Nếu giá trị < 1, tô màu đỏ
-                        if (value < 1) {
-                            td.classList.add('red'); // Thêm lớp đỏ
-                        }
-                    } else {
-                        td.textContent = formatNumber(value);
-                    }
-
-                    tr.appendChild(td);
-                });
-
-                // Tô màu nền xen kẽ cho các hàng
-                if (rowIndex % 2 === 0) {
-                    tr.classList.add('even-row');
-                } else {
-                    tr.classList.add('odd-row');
-                }
-                table.appendChild(tr);
-            });
-
-            return table; // Return the table so it can be appended later
-        }
         //Tạo biểu đồ đường        
         function createLinechart(ctx, labels, TH, KH, last_month, last_year, date, name,market) {
             return new Chart(ctx, {
@@ -976,302 +1071,576 @@
         }
 
 
-// Biểu đồ HTKH_DTDV
+        // Helper function to generate a chart with specified settings
+        function generateBarChart(data, ref, compare, name, compareText, alert) {
+            const { labels, values, date } = readinputBarchart(data, ref, compare);
+            const ctx = document.getElementById('Chart').getContext('2d');
+            return createBarchart(ctx, labels, values, date, name, compareText, alert);
+        }
+
+        // Functions to create specific charts using generateChart with appropriate parameters
         function create_HTKH_DTDV(data) {
-            const {labels, values, date} = readinputBarchart(data, 163,'HTKH');
-            const name = 'DTDV';
-            const compare = 'So với kế hoạch';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,1)
+            chartInstance = generateBarChart(data, 163, 'HTKH', 'DTDV', 'Tiến độ ngày', 1);
         }
 
-// Biểu đồ create_HTKH_TBPSGDLK
         function create_HTKH_TBPSGDTT(data) {
-            const {labels, values, date} = readinputBarchart(data, 313,'HTKH');
-            const name = 'TB PSGD tăng thêm';
-            const compare = 'So với kế hoạch';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,1)
+            chartInstance = generateBarChart(data, 313, 'HTKH', 'TB PSGD tăng thêm', 'Tiến độ ngày', 1);
         }
 
-// Biểu đồ create_YoY_DTDV
         function create_YoY_DTDV(data) {
-            const {labels, values, date} = readinputBarchart(data, 163,'YoY');
-            const name = 'DTDV';
-            const compare = 'So với năm trước';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,0)
+            chartInstance = generateBarChart(data, 163, 'YoY', 'DTDV', 'So với năm trước', 0);
         }
 
-// Biểu đồ create_YoY_TBPSGDLK
         function create_YoY_TBPSGDLK(data) {
-            const {labels, values, date} = readinputBarchart(data, 312,'YoY');
-            const name = 'TB PSGD LK';
-            const compare = 'So với năm trước';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,0)
+            chartInstance = generateBarChart(data, 312, 'YoY', 'TB PSGD LK', 'So với năm trước', 0);
         }
 
-// Biểu đồ create_MoM_DTDV
-function create_MoM_DTDV(data) {
-            const {labels, values, date} = readinputBarchart(data, 163,'MoM');
-            const name = 'DTDV';
-            const compare = 'So với tháng trước';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,0)
+        function create_MoM_DTDV(data) {
+            chartInstance = generateBarChart(data, 163, 'MoM', 'DTDV', 'So với tháng trước', 0);
         }
 
-// Biểu đồ create_MoM_TBPSGDLK
         function create_MoM_TBPSGDLK(data) {
-            const {labels, values, date} = readinputBarchart(data, 312,'MoM');
-            const name = 'TB PSGD LK';
-            const compare = 'So với tháng trước';
-            const ctx = document.getElementById('Chart').getContext('2d');
-
-            chartInstance = createBarchart(ctx, labels, values, date, name, compare,0)
+            chartInstance = generateBarChart(data, 312, 'MoM', 'TB PSGD LK', 'So với tháng trước', 0);
         }
 
-// Biểu đồ create_DTDV_daily_trend
+        function generateLineChart(data, element, ref, name, market) {
+            const { labels, TH, KH, last_month, last_year, date } = readinputLinechart(data, ref);
+            const ctx = document.getElementById(element).getContext('2d');
+            return createLinechart(ctx, labels, TH, KH, last_month, last_year, date, name, market);
+        }
+
+
         function create_DTDV_daily_trend(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTG163');
             const name = 'DTDV';
             const market = 'VTG';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+            const ref = 'VTG163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
         }
 
-// Biểu đồ create_TBPSGDLK_daily_trend
         function create_TBPSGDLK_daily_trend(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTG312');
             const name = 'TB PSGD lũy kế';
             const market = 'VTG';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+            const ref = 'VTG312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
         }
-// Biểu đồ create_DTDV_daily_trend
+
         function create_DTDV_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
             const name = 'DTDV';
             const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+            const ref = 'VTC163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
         }
 
-// Biểu đồ create_TBPSGDLK_daily_trend
         function create_TBPSGDLK_daily_trend_VTC(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC312');
             const name = 'TB PSGD lũy kế';
             const market = 'VTC';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+            const ref = 'VTC312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
         }
 
-// Biểu đồ create_DTDV_daily_trend
         function create_DTDV_daily_trend_STL(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'STL163');
             const name = 'DTDV';
             const market = 'STL';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_STL(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'STL312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'STL';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTL(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTL163');
-            const name = 'DTDV';
-            const market = 'VTL';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTL(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTL312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTL';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_MYN(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'MYN163');
-            const name = 'DTDV';
-            const market = 'MYN';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_MYN(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'MYN312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'MYN';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VBD(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VBD163');
-            const name = 'DTDV';
-            const market = 'VBD';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VBD(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VBD312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VBD';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_MOV(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'MOV163');
-            const name = 'DTDV';
-            const market = 'MOV';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_MOV(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'MOV312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'MOV';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-// Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_VTZ(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTZ163');
-            const name = 'DTDV';
-            const market = 'VTZ';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_VTZ(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTZ312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'VTZ';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-        // Biểu đồ create_DTDV_daily_trend
-        function create_DTDV_daily_trend_NCM(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'NAT163');
-            const name = 'DTDV';
-            const market = 'NCM';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-// Biểu đồ create_TBPSGDLK_daily_trend
-        function create_TBPSGDLK_daily_trend_NCM(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'NAT312');
-            const name = 'TB PSGD lũy kế';
-            const market = 'NCM';
-            const ctx = document.getElementById('Chart').getContext('2d');
-            chartInstance = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
-        }
-
-
-// Hàm tạo bảng 9
-        function createTable9(data) {
-            // Xóa canvas trước khi hiển thị bảng
-            const chartContainer = document.getElementById('ChartContainer');
-            chartContainer.innerHTML = ""; // Xóa nội dung (canvas)
-
-            // Gọi hàm createTable để tạo bảng với dữ liệu
-            const table = createTable(data,'excelTable9');
-
-            // Thêm bảng vào container
-            chartContainer.appendChild(table);
-        }
-
-        
-        //////////////
-        async function loadchartvtc1() {
-            // Show VTC loading spinner
-            document.getElementById('vtcLoadingSpinner').style.display = 'block';
-
-            let responseSheet3, responseSheet9;
-            try {
-                // Fetch data from Sheet3 and Sheet9
-                responseSheet3 = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet3!A:I', 
-                });
-
-                responseSheet9 = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1PR62ufQsg8k2ETFkZx1c8O7cwWU73_8FfWnZ1XH57fw',
-                    range: 'Sheet9!A:J',
-                });
-
-            } catch (err) {
-                document.getElementById('content').innerText = err.message;
-                hideLoading(); 
-                return;
-            }
-
-            document.getElementById('vtcLoadingSpinner').style.display = 'none';
-
-            // Process Sheet3, Sheet3 Data
-            const rangeSheet3 = responseSheet3.result;
-            const sheet3Data = processSheetData(rangeSheet3, 'Sheet3');
-
-            const rangeSheet9 = responseSheet9.result;
-            const sheet9Data = processSheetData(rangeSheet9, 'Sheet9');
-
-            console.log(sheet9Data);
-            createChartstl1(sheet9Data);
-            createChartvtc1(sheet3Data);
+            const ref = 'VTC312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
             
         }
 
+        function create_TBPSGDLK_daily_trend_STL(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'STL';
+            const ref = 'STL312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_DTDV_daily_trend_VTL(data) {
+            const name = 'DTDV';
+            const market = 'VTL';
+            const ref = 'VTL163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_VTL(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'VTL';
+            const ref = 'VTL312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_DTDV_daily_trend_MYN(data) {
+            const name = 'DTDV';
+            const market = 'MYN';
+            const ref = 'MYN163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_MYN(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'MYN';
+            const ref = 'MYN312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+        
+        function create_DTDV_daily_trend_VBD(data) {
+            const name = 'DTDV';
+            const market = 'VBD';
+            const ref = 'VBD163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_VBD(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'VBD';
+            const ref = 'VBD312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_DTDV_daily_trend_MOV(data) {
+            const name = 'DTDV';
+            const market = 'MOV';
+            const ref = 'MOV163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_MOV(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'MOV';
+            const ref = 'MOV312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+        function create_DTDV_daily_trend_VTZ(data) {
+            const name = 'DTDV';
+            const market = 'VTZ';
+            const ref = 'VTZ163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_VTZ(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'VTZ';
+            const ref = 'VTZ312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_DTDV_daily_trend_NCM(data) {
+            const name = 'DTDV';
+            const market = 'NCM';
+            const ref = 'NAT163';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+
+        function create_TBPSGDLK_daily_trend_NCM(data) {
+            const name = 'TB PSGD lũy kế';
+            const market = 'NCM';
+            const ref = 'NAT312';
+            const element = 'Chart';
+            chartInstance = generateLineChart(data, element, ref, name, market);
+        }
+        
+        async function loadChartvtg1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartvtg1(data['Sheet3']);
+            createChartvtg2(data['Sheet3']);
+            createTablevtg1(data['Sheet9']);
+        }
+
+        async function loadChartvtc1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartvtc1(data['Sheet3']);
+            createChartvtc2(data['Sheet3']);
+            createTablevtc1(data['Sheet9']);
+        }
+
+        async function loadChartstl1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartstl1(data['Sheet3']);
+            createChartstl2(data['Sheet3']);
+            createTablestl1(data['Sheet9']);
+        }
+
+        async function loadChartvtl1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartvtl1(data['Sheet3']);
+            createChartvtl2(data['Sheet3']);
+            createTablevtl1(data['Sheet9']);
+        }
+
+        async function loadChartmyn1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartmyn1(data['Sheet3']);
+            createChartmyn2(data['Sheet3']);
+            createTablemyn1(data['Sheet9']);
+        }
+
+        async function loadChartvbd1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartvbd1(data['Sheet3']);
+            createChartvbd2(data['Sheet3']);
+            createTablevbd1(data['Sheet9']);
+        }
+
+        async function loadChartmov1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartmov1(data['Sheet3']);
+            createChartmov2(data['Sheet3']);
+            createTablemov1(data['Sheet9']);
+        }
+
+        async function loadChartvtz1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartvtz1(data['Sheet3']);
+            createChartvtz2(data['Sheet3']);
+            createTablevtz1(data['Sheet9']);
+        }
+
+        async function loadChartncm1() {
+            const sheetRanges = {
+                'Sheet3': 'Sheet3!A:I',
+                'Sheet9': 'Sheet9!A:J'
+            };
+
+            const data = await loadChartData(sheetRanges);
+            if (!data) return;  
+
+            // Use the processed data to create charts and tables
+            createChartncm1(data['Sheet3']);
+            createChartncm2(data['Sheet3']);
+            createTablencm1(data['Sheet9']);
+        }
+
+        // Biểu đồ 1vtg
+        function createChartvtg1(data) {
+            const name = 'DTDV';
+            const market = 'VTG';
+            const ref = 'VTG163';
+            const element = 'Chartvtg1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvtg2(data) {
+            const name = 'TB PSGD';
+            const market = 'VTG';
+            const ref = 'VTG312';
+            const element = 'Chartvtg2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+
         // Biểu đồ 1vtc
         function createChartvtc1(data) {
-            const {labels, TH, KH, last_month, last_year, date} = readinputLinechart(data,'VTC163');
             const name = 'DTDV';
             const market = 'VTC';
-            const ctx = document.getElementById('Chartvtc1').getContext('2d');
-            const lineChart = createLinechart(ctx,labels, TH, KH, last_month, last_year, date, name, market);
+            const ref = 'VTC163';
+            const element = 'Chartvtc1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
         }
 
+        function createChartvtc2(data) {
+            const name = 'TB PSGD';
+            const market = 'VTC';
+            const ref = 'VTC312';
+            const element = 'Chartvtc2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        // Biểu đồ 1stl
         function createChartstl1(data) {
-            const chartContainer = document.getElementById('Chartstl1');
-            chartContainer.innerHTML = ""; // Xóa nội dung (canvas)
-
-
-            // Gọi hàm createTable để tạo bảng với dữ liệu
-            const table = createTable(data,'excelTable10');
-            console.log(table)
-
-            // Thêm bảng vào container
-            chartContainer.appendChild(table);
+            const name = 'DTDV';
+            const market = 'STL';
+            const ref = 'STL163';
+            const element = 'Chartstl1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
         }
+
+        function createChartstl2(data) {
+            const name = 'TB PSGD';
+            const market = 'STL';
+            const ref = 'STL312';
+            const element = 'Chartstl2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvtl1(data) {
+            const name = 'DTDV';
+            const market = 'VTL';
+            const ref = 'VTL163';
+            const element = 'Chartvtl1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvtl2(data) {
+            const name = 'TB PSGD';
+            const market = 'VTL';
+            const ref = 'VTL312';
+            const element = 'Chartvtl2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartmyn1(data) {
+            const name = 'DTDV';
+            const market = 'MYN';
+            const ref = 'MYN163';
+            const element = 'Chartmyn1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartmyn2(data) {
+            const name = 'TB PSGD';
+            const market = 'MYN';
+            const ref = 'MYN312';
+            const element = 'Chartmyn2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+        
+        function createChartvbd1(data) {
+            const name = 'DTDV';
+            const market = 'VBD';
+            const ref = 'VBD163';
+            const element = 'Chartvbd1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvbd2(data) {
+            const name = 'TB PSGD';
+            const market = 'VBD';
+            const ref = 'VBD312';
+            const element = 'Chartvbd2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartmov1(data) {
+            const name = 'DTDV';
+            const market = 'MOV';
+            const ref = 'MOV163';
+            const element = 'Chartmov1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartmov2(data) {
+            const name = 'TB PSGD';
+            const market = 'MOV';
+            const ref = 'MOV312';
+            const element = 'Chartmov2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvtz1(data) {
+            const name = 'DTDV';
+            const market = 'VTZ';
+            const ref = 'VTZ163';
+            const element = 'Chartvtz1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartvtz2(data) {
+            const name = 'TB PSGD';
+            const market = 'VTZ';
+            const ref = 'VTZ312';
+            const element = 'Chartvtz2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartncm1(data) {
+            const name = 'DTDV';
+            const market = 'NAT';
+            const ref = 'NAT163';
+            const element = 'Chartncm1';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+        function createChartncm2(data) {
+            const name = 'TB PSGD';
+            const market = 'NAT';
+            const ref = 'NAT312';
+            const element = 'Chartncm2';
+            const lineChart = generateLineChart(data, element, ref, name, market);
+        }
+
+
+        // Utility function to render a table in a given container with specified data and table ID
+        function renderTable(data, containerId, tableId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";  // Clear previous content
+            const table = createTable(data, tableId);
+            container.appendChild(table);  // Append the created table
+        }
+
+        // Unified table creation function
+        function createTable(data, tableId) {
+            const table = document.createElement('table');
+            table.id = tableId;
+
+            // Table caption
+            const caption = document.createElement('caption');
+            caption.textContent = "Bảng tổng hợp"; // Customize as needed
+            table.appendChild(caption);
+
+            // Create header row from data keys
+            const headerRow = document.createElement('tr');
+            const headers = Object.keys(data[0]);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Create data rows
+            data.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                const values = Object.values(row);
+
+                values.forEach((value, index) => {
+                    const td = document.createElement('td');
+                    td.className = (index === 0) ? 'left-align' : 'center-align';
+
+                    // Format specific rows (e.g., rowIndex 0, 5, 10, etc.) as percentages and bold
+                    if ([0, 5, 10, 15, 20].includes(rowIndex)) {
+                        td.textContent = formatPercentage(value);
+                        td.classList.add('bold');
+                        if (value < 1) td.classList.add('red'); // Add red color if value < 1
+                    } else {
+                        td.textContent = formatNumber(value);
+                    }
+
+                    tr.appendChild(td);
+                });
+
+                // Apply alternating row colors
+                tr.classList.add(rowIndex % 2 === 0 ? 'even-row' : 'odd-row');
+                table.appendChild(tr);
+            });
+
+            return table;
+        }
+
+        // Specific functions to create tables for different containers, using renderTable
+        function createTable9(data) {
+            const container = document.getElementById('ChartContainer');
+            container.innerHTML = "";  
+            const table = createTable(data, 'excelTable9');
+            container.appendChild(table);  
+        }
+
+        function createTablevtg1(data) {
+            renderTable(data, 'Tablevtg1', 'excelTable10');
+        }
+
+        function createTablevtc1(data) {
+            renderTable(data, 'Tablevtc1', 'excelTable10');
+        }
+
+        function createTablestl1(data) {
+            renderTable(data, 'Tablestl1', 'excelTable10');
+        }
+
+        function createTablevtl1(data) {
+            renderTable(data, 'Tablevtl1', 'excelTable10');
+        }
+        
+        function createTablemyn1(data) {
+            renderTable(data, 'Tablemyn1', 'excelTable10');
+        }
+        
+        function createTablevbd1(data) {
+            renderTable(data, 'Tablevbd1', 'excelTable10');
+        }
+        
+        function createTablemov1(data) {
+            renderTable(data, 'Tablemov1', 'excelTable10');
+        }
+
+        function createTablevtz1(data) {
+            renderTable(data, 'Tablevtz1', 'excelTable10');
+        }
+
+        function createTablencm1(data) {
+            renderTable(data, 'Tablencm1', 'excelTable10');
+        }
+
 
     </script>
 </body>
 </html>
+
